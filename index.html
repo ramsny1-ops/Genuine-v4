@@ -3,38 +3,775 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Pink Hunter | Dynamic Probability Dashboard</title>
+    <title>Pink Hunter | Professional Aviator Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --bg-primary: rgba(240, 242, 246, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-dark: #1a2c3e;
+            --text-muted: #5b7a9a;
+            --accent-teal: #2c7da0;
+            --accent-teal-dark: #1f5e7a;
+            --alert-low-bg: rgba(255, 245, 240, 0.95);
+            --alert-low-text: #c25a3a;
+            --alert-high-bg: rgba(240, 248, 252, 0.95);
+            --alert-high-text: #2c7da0;
+            --neutral-bg: rgba(248, 250, 253, 0.95);
+            --neutral-text: #5b7a9a;
+            --pattern-bg: rgba(254, 250, 240, 0.95);
+            --pattern-text: #b87c00;
+            --window-tag-bg: rgba(238, 243, 252, 0.9);
+            --window-tag-text: #1f5e7a;
+            --shadow-sm: 0 8px 20px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.02);
+            --shadow-hover: 0 20px 30px rgba(0,0,0,0.1);
+            --transition: all 0.2s ease;
+            --glass-blur: blur(12px);
+            --radius-round: 28px;
+            --radius-sm: 18px;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            background: #f0f2f6;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
             font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             padding: 20px;
             padding-bottom: 80px;
         }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .cntnr_9f3a2b1c { max-width: 1400px; margin: 0 auto; }
+        
+        /* Loader */
         .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1e2f3e;
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            color: white;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1e2f3e; display: flex; align-items: center; justify-content: center;
+            z-index: 2000; transition: opacity 0.4s ease;
+        }
+        .loader-spinner {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--accent-teal), #ffffff, var(--accent-teal));
+            animation: spin 0.8s linear infinite;
+            mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Floating button */
+        .flt_btn_2d8a7f3e {
+            position: fixed; bottom: 28px; right: 28px; width: 52px; height: 52px;
+            background: rgba(30, 47, 62, 0.9); backdrop-filter: var(--glass-blur);
+            border-radius: 50%; box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+            display: flex; align-items: center; justify-content: center; cursor: grab;
+            z-index: 1000; touch-action: none; user-select: none;
+            transition: transform 0.2s;
+        }
+        .flt_btn_2d8a7f3e:active { cursor: grabbing; transform: scale(0.96); }
+        .flt_btn_2d8a7f3e span { display: block; width: 22px; height: 2px; background: white; margin: 4px 0; border-radius: 2px; }
+        
+        .ovrly_4c9e2b7a {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 1001; display: none;
+        }
+        .pnl_5f1d3c8e {
+            position: fixed; bottom: 100px; right: 20px; width: 420px;
+            max-width: calc(100vw - 40px); background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: var(--glass-blur); box-shadow: var(--shadow-hover);
+            z-index: 1002; display: none; flex-direction: column; overflow: hidden;
+            border-radius: var(--radius-round);
+            transform-origin: bottom right;
+        }
+        .pnl_5f1d3c8e.opn_9a2b4c7d { display: flex; }
+        .pnl_hdr_6e8f2a1c {
+            padding: 16px 20px; background: rgba(248, 250, 253, 0.9);
+            font-weight: 600; display: flex; justify-content: space-between; align-items: center;
+            font-size: 1rem;
+        }
+        .pnl_hdr_6e8f2a1c button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
+        .pnl_cntnt_3d7b2e9f { padding: 18px; max-height: 70vh; overflow-y: auto; font-size: 0.8rem; }
+        .menu-item {
+            display: block; width: 100%; padding: 10px 16px; margin-bottom: 8px;
+            text-align: left; background: rgba(248, 250, 253, 0.9); color: var(--text-dark);
+            font-weight: 500; border: none; border-radius: var(--radius-sm);
+            cursor: pointer; transition: var(--transition); font-size: 0.8rem;
+        }
+        .menu-item:hover { background: var(--accent-teal); color: white; transform: translateX(4px); }
+        
+        /* Professional D3 chart inside menu */
+        .d3-menu-viz {
+            background: rgba(255,255,255,0.6);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        .d3-menu-viz svg { display: block; margin: 0 auto; }
+        .viz-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+            color: var(--text-dark);
+        }
+        
+        .dash_grid_2f4a8c1e { display: grid; grid-template-columns: 1fr 1.2fr; gap: 28px; margin-top: 20px; }
+        .card_7b3e9d2a {
+            background: var(--card-bg); backdrop-filter: var(--glass-blur);
+            box-shadow: var(--shadow-sm); overflow: hidden;
+            border-radius: var(--radius-round);
+            transition: var(--transition);
+        }
+        .card_7b3e9d2a:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+        .card_hdr_4c8f2b6e { padding: 18px 24px 6px; }
+        .card_ttl_1a9d3f7c { font-weight: 700; font-size: 1.25rem; color: var(--text-dark); letter-spacing: -0.2px; }
+        .card_sub_5e2b8a4d { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+        .card_cntnt_6f3a2c8e { padding: 18px 24px 24px; }
+        
+        .gauge_9c7d1f4b { display: flex; justify-content: center; margin: 8px 0; }
+        .alert_2e8f7a3c {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+            font-size: 0.75rem; font-weight: 500; margin-top: 14px;
+            border-radius: var(--radius-sm);
+        }
+        .alert_low_4d9c2a7e { background: var(--alert-low-bg); color: var(--alert-low-text); }
+        .alert_high_8b2f4c6a { background: var(--alert-high-bg); color: var(--alert-high-text); }
+        .alert_neutral_3e7a1c9d { background: var(--neutral-bg); color: var(--neutral-text); }
+        
+        .timeline_6a2f4c8e {
+            background: rgba(248, 250, 253, 0.6); backdrop-filter: blur(4px);
+            padding: 12px 16px; margin-top: 18px;
+            border-radius: var(--radius-sm);
+        }
+        .windows_row_5d9f3b1c { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .window_tag_7a2e4c9d {
+            font-family: monospace; font-size: 0.7rem; background: var(--window-tag-bg);
+            padding: 5px 14px; color: var(--window-tag-text); border-radius: 40px; font-weight: 600;
+        }
+        .chart_switcher_3b8a6e2c {
+            background: rgba(248, 250, 253, 0.7); padding: 4px; display: flex;
+            margin-bottom: 20px; border-radius: 60px;
+        }
+        .switch_opt_9f4d2a7c {
+            flex: 1; text-align: center; padding: 6px 4px; font-size: 0.7rem;
+            font-weight: 600; cursor: pointer; color: var(--text-muted);
+            background: transparent; border-radius: 40px;
+            transition: var(--transition);
+        }
+        .switch_opt_9f4d2a7c.actv_1e3b5c7d { background: var(--accent-teal); color: white; }
+        .chart_canvas_6d2a4f8e { height: 300px; width: 100%; margin: 6px 0; }
+        .outcome_bar_7c3e9a2b { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 12px; }
+        .btn_4f8a2c9e {
+            border: none; padding: 8px 18px; font-weight: 600; font-size: 0.75rem;
+            cursor: pointer; background: rgba(240, 244, 249, 0.9); color: #1e2f3f;
+            border-radius: 40px; transition: var(--transition);
+        }
+        .btn_4f8a2c9e:hover { background: var(--accent-teal); color: white; transform: scale(0.97); }
+        .history_log_2a7d4c9e {
+            background: rgba(250, 252, 255, 0.8); padding: 12px;
+            display: flex; flex-wrap: wrap; gap: 6px; max-height: 110px; overflow-y: auto;
+            font-family: monospace; font-size: 0.7rem; border-radius: var(--radius-sm);
+        }
+        .history_tag_6b3e8a2d { background: #f1f5f9; padding: 5px 12px; border-radius: 30px; font-weight: 500; }
+        .pattern_alert_5c2f8a3e {
+            background: var(--pattern-bg); color: var(--pattern-text);
+            padding: 12px 16px; font-size: 0.75rem; margin-top: 14px;
+            border-radius: var(--radius-sm); font-weight: 500;
+        }
+        .forecast_9b2e4c7a { margin-top: 22px; padding-top: 14px; border-top: 1px solid rgba(0,0,0,0.05); }
+        .forecast_bars_1a3f5c8e { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 6px; }
+        .forecast_bar_7d2e4f9c { flex: 0 0 40px; text-align: center; font-size: 0.65rem; }
+        .forecast_bar_7d2e4f9c .bar_inner_2c6a8f4e { background: var(--accent-teal); width: 24px; margin: 0 auto; transition: height 0.2s; border-radius: 8px; }
+        .tips-highlight { background: rgba(44,125,160,0.1); padding: 12px; margin: 10px 0; border-radius: var(--radius-sm); }
+        footer {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+            gap: 16px; margin-top: 48px; padding-top: 20px;
+            font-size: 0.65rem; color: var(--text-muted);
+        }
+        @media (max-width: 800px) {
+            .dash_grid_2f4a8c1e { grid-template-columns: 1fr; }
+            body { padding: 16px; }
+            footer { flex-direction: column; text-align: center; }
+        }
+        .table_glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(4px); border-radius: var(--radius-sm); }
+        .input-group-sm input { font-size: 0.75rem; border-radius: var(--radius-sm); }
+    </style>
+</head>
+<body>
+<div id="loaderOverlay" class="loader-overlay"><div class="loader-spinner"></div></div>
+
+<div class="cntnr_9f3a2b1c" id="main_cntnt_4c8e2a7f" style="display: none;">
+    <div id="flt_btn_2d8a7f3e" class="flt_btn_2d8a7f3e"><div><span></span><span></span><span></span></div></div>
+    <div id="ovrly_4c9e2b7a" class="ovrly_4c9e2b7a"></div>
+    <div id="pnl_5f1d3c8e" class="pnl_5f1d3c8e">
+        <div class="pnl_hdr_6e8f2a1c"><span id="pnl_ttl_3a9f2c7e">Pink Hunter Menu</span><button id="cls_pnl_4b8e2c7a">&times;</button></div>
+        <div id="pnl_cntnt_3d7b2e9f" class="pnl_cntnt_3d7b2e9f"></div>
+    </div>
+
+    <div class="dash_grid_2f4a8c1e">
+        <div class="card_7b3e9d2a">
+            <div class="card_hdr_4c8f2b6e">
+                <div class="card_ttl_1a9d3f7c">Dynamic Pink Probability</div>
+                <div class="card_sub_5e2b8a4d">Real-time based on windows, patterns & outcome history</div>
+            </div>
+            <div class="card_cntnt_6f3a2c8e">
+                <div class="gauge_9c7d1f4b">
+                    <svg width="170" height="170" viewBox="0 0 200 200">
+                        <circle cx="100" cy="100" r="85" fill="none" stroke="#e9edf2" stroke-width="12" />
+                        <circle id="gauge_fill_2e7a4c9d" cx="100" cy="100" r="85" fill="none" stroke="#2c7da0" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" stroke-linecap="round" />
+                        <text id="gauge_txt_8a3f2c6e" x="100" y="100" font-size="32" font-weight="700" fill="#1a2c3e" text-anchor="middle" dominant-baseline="middle">0%</text>
+                    </svg>
+                </div>
+                <div id="alert_bdg_4c7a2f9e" class="alert_2e8f7a3c alert_neutral_3e7a1c9d">Probability: --%</div>
+                <div class="timeline_6a2f4c8e">
+                    <div style="font-weight:600;">Pink guarantee windows every hour</div>
+                    <div class="windows_row_5d9f3b1c" id="win_list_7a2c4e9f"></div>
+                    <div class="card_sub_5e2b8a4d" style="margin-top:6px;">Biggest: 57-59 and 01-03 minutes</div>
+                    <div id="live_min_6b2e4f8a" style="margin-top:8px; font-family:monospace;">Now: -- min</div>
+                </div>
+                <hr style="margin: 18px 0; opacity:0.15;">
+                <div style="font-weight:600;">Outcome history</div>
+                <div class="outcome_bar_7c3e9a2b">
+                    <button class="btn_4f8a2c9e" id="add_blue_2c7a4d9f">+ Blue</button>
+                    <button class="btn_4f8a2c9e" id="add_purple_8f3a2c7e">+ Purple</button>
+                    <button class="btn_4f8a2c9e" id="add_pink_4d9c2a7e">+ Pink</button>
+                    <button class="btn_4f8a2c9e" id="reset_outs_1a7c4e9d">Reset</button>
+                </div>
+                <div id="hist_log_5d2a7c4e" class="history_log_2a7d4c9e">No rounds recorded.</div>
+                <div id="pat_alert_8e2c4a7d" class="pattern_alert_5c2f8a3e">Add outcomes to activate pattern detection</div>
+                <div class="forecast_9b2e4c7a">
+                    <div style="font-weight:600; margin-bottom:8px;">Probability forecast next 15 min</div>
+                    <div id="fcst_bars_4a7e2c9d" class="forecast_bars_1a3f5c8e"></div>
+                    <div class="card_sub_5e2b8a4d">Based on current minute and no new outcomes</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card_7b3e9d2a">
+            <div class="card_hdr_4c8f2b6e">
+                <div class="card_ttl_1a9d3f7c" id="chart_ttl_2a7c4e9d">Momentum Oscillator · Line Chart</div>
+                <div class="card_sub_5e2b8a4d" id="live_ts_6d2a4f8e">Real-time · click points for details</div>
+            </div>
+            <div class="card_cntnt_6f3a2c8e">
+                <div class="chart_switcher_3b8a6e2c">
+                    <div class="switch_opt_9f4d2a7c actv_1e3b5c7d" data-style="line">Line</div>
+                    <div class="switch_opt_9f4d2a7c" data-style="wave">Wave</div>
+                    <div class="switch_opt_9f4d2a7c" data-style="bar">Bar</div>
+                    <div class="switch_opt_9f4d2a7c" data-style="floatingBar">Floating Bar</div>
+                    <div class="switch_opt_9f4d2a7c" data-style="combo">Combo</div>
+                </div>
+                <div class="chart_canvas_6d2a4f8e"><canvas id="dyn_canvas_3c7a2e8f" width="700" height="300" style="width:100%; height:100%;"></canvas></div>
+                <div id="click_fb_9f2c4a7e" style="text-align:center; font-size:0.65rem; margin-top:6px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="left">Created by <a href="mailto:ramsulley@gmail.com">ramsulley@gmail.com</a><br>Advanced pattern intelligence</div>
+        <div class="right"><a href="https://github.com/ramsny1-ops" target="_blank">ramsny1-ops</a> · ramsny<br><span id="curr_year_2a4c7e9f"></span></div>
+    </footer>
+</div>
+
+<script>
+/**
+ * Pink Hunter - Professional Dashboard with D3 Compounding Chart Inside Menu
+ * @fileoverview Removed childish outcome frequency bar chart, replaced with professional compounding growth D3 line chart.
+ * @author ramsny ramsulley@gmail.com
+ * @version 15.0.0
+ * @date 2026-04-12
+ * No parentheses in UI, no border colors, clean modern design.
+ */
+
+(function() {
+    const ___PINK_WINDOWS_FIXED = [[57,60], [0,3], [20,22], [29,31], [40,42], [45,47], [50,52]];
+    
+    let ___state = {
+        outcomes: [],
+        probHistory: [],
+        currentChart: null,
+        currentStyle: 'line',
+        updateInterval: null,
+        pinkEvents: []
+    };
+    
+    const ___dom = {};
+    
+    // -------- Storage --------
+    const ___loadOutcomes = () => {
+        const stored = localStorage.getItem('pinkHunter_outcomes_v11');
+        if (stored) { try { ___state.outcomes = JSON.parse(stored); } catch(e) {} }
+        const storedPink = localStorage.getItem('pinkHunter_pinkEvents_v8');
+        if (storedPink) { try { ___state.pinkEvents = JSON.parse(storedPink); } catch(e) {} }
+    };
+    const ___saveOutcomes = () => {
+        localStorage.setItem('pinkHunter_outcomes_v11', JSON.stringify(___state.outcomes));
+        localStorage.setItem('pinkHunter_pinkEvents_v8', JSON.stringify(___state.pinkEvents));
+    };
+    
+    // -------- Helpers --------
+    const ___isInPinkZone = (minute) => ___PINK_WINDOWS_FIXED.some(([s,e]) => minute >= s && minute < e);
+    const ___isInPlayingSlot = (hour) => (hour >= 5 && hour < 9) || (hour >= 15 && hour < 20) || (hour >= 23 || hour < 2);
+    
+    const ___computeProbability = (currentMinute, currentHour) => {
+        const recent = ___state.outcomes.slice(-10).map(o => o.color);
+        const pinkCount = recent.filter(o => o === 'PINK').length;
+        let recentBonus = Math.min(20, pinkCount * 2);
+        let base = 20;
+        if (___isInPinkZone(currentMinute)) {
+            base = 75;
+            if ((currentMinute >= 57 && currentMinute < 60) || (currentMinute >= 0 && currentMinute < 3)) base = 80;
+        } else {
+            let minDistance = 60;
+            for (let [s,e] of ___PINK_WINDOWS_FIXED) {
+                let dist = (s - currentMinute + 60) % 60;
+                if (dist < minDistance) minDistance = dist;
+            }
+            let distanceFactor = Math.min(1.0, minDistance / 15);
+            base = 60 * (1 - distanceFactor) + 20 * distanceFactor;
+        }
+        let slotBonus = ___isInPlayingSlot(currentHour) ? 5 : 0;
+        let patternBonus = 0;
+        const colors = ___state.outcomes.map(o => o.color);
+        if (colors.length >= 3) {
+            const last3 = colors.slice(-3);
+            if (last3.join(',') === 'BLUE,BLUE,PURPLE') patternBonus = 8;
+            if (colors.length >= 4 && colors.slice(-4).join(',') === 'BLUE,PINK,BLUE,PINK') patternBonus = 12;
+            if (colors.slice(-8).filter(c => c === 'PURPLE').length >= 4) patternBonus = 10;
+        }
+        let prob = base + recentBonus + slotBonus + patternBonus;
+        return Math.min(95, Math.max(15, Math.round(prob)));
+    };
+    
+    const ___updateForecast = () => {
+        const now = new Date();
+        const currentMinute = now.getMinutes() + now.getSeconds()/60;
+        const currentHour = now.getHours();
+        const container = ___dom.fcstBars;
+        if (!container) return;
+        let html = '';
+        for (let i = 1; i <= 15; i++) {
+            let futureMinute = currentMinute + i;
+            let futureHour = currentHour;
+            if (futureMinute >= 60) { futureMinute -= 60; futureHour = (futureHour + 1) % 24; }
+            const prob = ___computeProbability(futureMinute, futureHour);
+            const height = Math.max(20, prob * 0.8);
+            const barColor = prob > 70 ? '#2c7da0' : (prob < 40 ? '#c25a3a' : '#8faaaf');
+            html += `<div class="forecast_bar_7d2e4f9c"><div class="bar_inner_2c6a8f4e" style="height: ${height}px; background: ${barColor};"></div><div>+${i}</div><div style="font-size:0.6rem;">${prob}%</div></div>`;
+        }
+        container.innerHTML = html;
+    };
+    
+    const ___setGauge = (value) => {
+        const circumference = 2 * Math.PI * 85;
+        let offset = circumference - (value/100)*circumference;
+        ___dom.gaugeFill.style.strokeDashoffset = offset;
+        ___dom.gaugeText.textContent = value + '%';
+        ___dom.gaugeFill.setAttribute('stroke', value < 30 ? '#c25a3a' : (value > 70 ? '#2c7da0' : '#8faaaf'));
+    };
+    
+    const ___updateAlert = (prob) => {
+        let text, cls;
+        if (prob < 50) { text = `Caution: ${prob}% – bet small stake, gamble with care.`; cls = 'alert_low_4d9c2a7e'; }
+        else if (prob >= 70) { text = `High confidence: ${prob}% – increase targets.`; cls = 'alert_high_8b2f4c6a'; }
+        else { text = `Moderate chance: ${prob}% – normal stakes advised.`; cls = 'alert_neutral_3e7a1c9d'; }
+        ___dom.alertBadge.innerHTML = text;
+        ___dom.alertBadge.className = `alert_2e8f7a3c ${cls}`;
+    };
+    
+    const ___populateWindowsList = () => {
+        const container = ___dom.winList;
+        container.innerHTML = '';
+        ___PINK_WINDOWS_FIXED.forEach(([s,e]) => {
+            const tag = document.createElement('span');
+            tag.className = 'window_tag_7a2e4c9d';
+            tag.innerText = `${s}-${e} min`;
+            container.appendChild(tag);
+        });
+    };
+    
+    // -------- Pattern detection --------
+    const ___detectAdvancedPatterns = () => {
+        const colors = ___state.outcomes.map(o => o.color);
+        if (colors.length < 4) return "";
+        const alerts = [];
+        const last5 = colors.slice(-5);
+        if (last5.length>=5 && last5[0]==='PURPLE' && last5[1]==='BLUE' && last5[2]==='PURPLE' && last5[3]==='BLUE' && last5[4]==='PURPLE')
+            alerts.push("Purple Blue Purple Blue Purple pattern active – high continuation");
+        if (colors.length>=6 && colors.slice(-6).join(',') === 'BLUE,BLUE,PURPLE,BLUE,BLUE,PURPLE')
+            alerts.push("2 blues then 2 purples then blue then 2 purple – watch payout");
+        if (colors.length>=4 && colors.slice(-4).join(',') === 'BLUE,PINK,BLUE,PINK')
+            alerts.push("Blue Pink Blue Pink pattern – another pink soon");
+        if (colors.slice(-8).filter(c => c === 'PURPLE').length >= 4) alerts.push("Purple cluster – jackpot possible above 50x");
+        return alerts.join(" | ");
+    };
+    
+    const ___detectPatterns = () => {
+        const colors = ___state.outcomes.map(o => o.color);
+        if (colors.length < 2) return "Add outcomes to activate pattern rules.";
+        const alerts = [];
+        const last4 = colors.slice(-4);
+        if (last4.length===4 && last4.filter(c=>c==='BLUE').length>=2 && last4[last4.length-1]==='BLUE' && last4[last4.length-2]==='BLUE')
+            alerts.push("Pattern 2.1: Two consecutive blues after mix → expect PINK next.");
+        let consBlue = 0;
+        for (let i=colors.length-1; i>=0 && colors[i]==='BLUE'; i--) consBlue++;
+        if (consBlue >=6 && consBlue <=8) alerts.push(`Pattern 2.2: ${consBlue} blues in a row → expect big pink 20x+.`);
+        let consPurple = 0;
+        for (let i=colors.length-1; i>=0 && colors[i]==='PURPLE'; i--) consPurple++;
+        if (consPurple >=5) alerts.push(`Pattern 2.3: ${consPurple} purples → anticipate pink above 20x.`);
+        const base = alerts.join(" | ");
+        const advanced = ___detectAdvancedPatterns();
+        return base && advanced ? base + " | " + advanced : base || advanced;
+    };
+    
+    const ___updateHistoryUI = () => {
+        const historyDiv = ___dom.historyLog;
+        if (___state.outcomes.length === 0) historyDiv.innerHTML = 'No rounds recorded.';
+        else {
+            historyDiv.innerHTML = ___state.outcomes.map((o,i)=>`<span class="history_tag_6b3e8a2d">${i+1}: ${o.color}${o.multiplier ? ` (${o.multiplier}x)` : ''}</span>`).join('');
+        }
+        ___dom.patternAlert.innerHTML = ___detectPatterns();
+        // No need to update menu D3 here because it's static compounding chart, but we keep it for consistency.
+    };
+    
+    // -------- D3 Professional Compounding Chart (replaces childish frequency bar) --------
+    const ___renderCompoundingChart = () => {
+        const container = document.getElementById('d3-compounding-container');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        const startAmount = 1000; // TZS
+        const multiplier = 1.20;
+        const rounds = 20;
+        let data = [];
+        let current = startAmount;
+        for (let i = 0; i <= rounds; i++) {
+            data.push({ round: i, balance: current });
+            current *= multiplier;
+        }
+        
+        const width = 360;
+        const height = 200;
+        const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        
+        const svg = d3.select(container).append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+        
+        const x = d3.scaleLinear()
+            .domain([0, rounds])
+            .range([0, innerWidth]);
+        
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.balance)])
+            .range([innerHeight, 0]);
+        
+        const line = d3.line()
+            .x(d => x(d.round))
+            .y(d => y(d.balance))
+            .curve(d3.curveMonotoneX);
+        
+        svg.append('path')
+            .datum(data)
+            .attr('fill', 'none')
+            .attr('stroke', '#2c7da0')
+            .attr('stroke-width', 2.5)
+            .attr('d', line);
+        
+        svg.selectAll('.dot')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('cx', d => x(d.round))
+            .attr('cy', d => y(d.balance))
+            .attr('r', 3)
+            .attr('fill', '#1f5e7a');
+        
+        svg.append('g')
+            .attr('transform', `translate(0,${innerHeight})`)
+            .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format('d')));
+        
+        svg.append('g').call(d3.axisLeft(y).tickFormat(d => d.toFixed(0) + ' TZS'));
+        
+        svg.append('text')
+            .attr('x', innerWidth / 2)
+            .attr('y', -8)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '10px')
+            .style('fill', '#5b7a9a')
+            .text('Compounding growth: 1,000 TZS × 1.20x per round');
+    };
+    
+    // This function will be called when the menu is opened, to attach the D3 chart at the bottom.
+    const ___attachMenuCompoundingChart = () => {
+        const menuContent = ___dom.panelContent;
+        // Check if chart container already exists, if not add it.
+        if (!document.getElementById('d3-compounding-container')) {
+            const chartDiv = document.createElement('div');
+            chartDiv.id = 'd3-compounding-container';
+            chartDiv.className = 'd3-menu-viz';
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'viz-title';
+            titleDiv.innerText = 'Projected Balance Growth over 20 Rounds';
+            chartDiv.appendChild(titleDiv);
+            menuContent.appendChild(chartDiv);
+            ___renderCompoundingChart();
+        } else {
+            // Re-render to ensure fresh data
+            ___renderCompoundingChart();
+        }
+    };
+    
+    // -------- Chart.js rendering --------
+    const ___renderChart = () => {
+        if (___state.currentChart) ___state.currentChart.destroy();
+        const ctx = ___dom.dynamicCanvas.getContext('2d');
+        const labels = ___state.probHistory.map(p => p.timestamp);
+        const values = ___state.probHistory.map(p => p.value);
+        let config = { responsive: true, maintainAspectRatio: true, onClick: (e) => {
+            const points = ___state.currentChart?.getElementsAtEvent(e);
+            if (points && points.length) {
+                const idx = points[0].index;
+                if (___state.probHistory[idx]) {
+                    ___dom.clickFeedback.innerHTML = `Selected: ${___state.probHistory[idx].timestamp} → ${___state.probHistory[idx].value}%`;
+                    setTimeout(() => { ___dom.clickFeedback.innerHTML = ''; }, 2500);
+                }
+            }
+        }};
+        if (___state.currentStyle === 'line' || ___state.currentStyle === 'wave') {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(44,125,160,0.3)');
+            gradient.addColorStop(1, 'rgba(44,125,160,0.02)');
+            config.type = 'line';
+            config.data = { labels, datasets: [{ label: 'Probability %', data: values, borderColor: '#2c7da0', backgroundColor: ___state.currentStyle === 'wave' ? gradient : 'rgba(44,125,160,0.1)', borderWidth: 2, tension: ___state.currentStyle === 'wave' ? 0.4 : 0.2, fill: true, pointRadius: 3, pointBackgroundColor: '#2c7da0' }] };
+            ___dom.chartTitle.innerText = `Momentum Oscillator · ${___state.currentStyle === 'wave' ? 'Wave Chart' : 'Line Chart'}`;
+        } else if (___state.currentStyle === 'bar') {
+            config.type = 'bar';
+            config.data = { labels, datasets: [{ label: 'Probability %', data: values, backgroundColor: '#2c7da0', barPercentage: 0.7 }] };
+            ___dom.chartTitle.innerText = 'Momentum Oscillator · Bar Chart';
+        } else if (___state.currentStyle === 'floatingBar') {
+            config.type = 'bar';
+            config.data = { labels, datasets: [{ label: 'Probability %', data: values, backgroundColor: 'rgba(44,125,160,0.6)', borderColor: '#1f5e7a', borderWidth: 1, barPercentage: 0.5 }] };
+            ___dom.chartTitle.innerText = 'Momentum Oscillator · Floating Bar';
+        } else if (___state.currentStyle === 'combo') {
+            const ma = values.map((_,i) => i<2 ? null : (values[i-2]+values[i-1]+values[i])/3);
+            config.type = 'bar';
+            config.data = { labels, datasets: [{ label: 'Probability bar', data: values, type: 'bar', backgroundColor: '#2c7da0', order: 1 }, { label: 'Moving Avg 3', data: ma, type: 'line', borderColor: '#c25a3a', borderWidth: 2, fill: false, tension: 0.2, pointRadius: 3, order: 0 }] };
+            ___dom.chartTitle.innerText = 'Momentum Oscillator · Combo Bar + MA';
+        }
+        config.options = { scales: { y: { min:0, max:100 } } };
+        ___state.currentChart = new Chart(ctx, config);
+    };
+    
+    const ___pushProbability = (value) => {
+        const now = new Date();
+        const timeLabel = now.toLocaleTimeString('en-GB', { hour12: false, minute:'2-digit', second:'2-digit' });
+        ___state.probHistory.push({ timestamp: timeLabel, value });
+        if (___state.probHistory.length > 40) ___state.probHistory.shift();
+        ___renderChart();
+    };
+    
+    const ___refreshAll = () => {
+        const now = new Date();
+        const minuteFloat = now.getMinutes() + now.getSeconds()/60;
+        const prob = ___computeProbability(minuteFloat, now.getHours());
+        ___setGauge(prob);
+        ___updateAlert(prob);
+        ___pushProbability(prob);
+        ___dom.liveMinute.innerHTML = `Now: ${minuteFloat.toFixed(1)} min`;
+        ___dom.liveTimestamp.innerHTML = `Real-time · ${now.toLocaleTimeString('en-GB',{hour12:false})} UTC`;
+        ___updateForecast();
+    };
+    
+    // -------- Outcome actions --------
+    const ___addOutcome = (color, multiplier = null) => {
+        ___state.outcomes.push({ color, multiplier, timestamp: new Date().toISOString() });
+        if (color === 'PINK') ___state.pinkEvents.push({ time: new Date(), multiplier: multiplier || 0 });
+        ___saveOutcomes();
+        ___updateHistoryUI();
+        ___refreshAll();
+    };
+    const ___resetOutcomes = () => {
+        ___state.outcomes = [];
+        ___state.pinkEvents = [];
+        ___saveOutcomes();
+        ___updateHistoryUI();
+        ___refreshAll();
+    };
+    
+    // -------- Menu content (professional) --------
+    const ___getProfessionalTips = () => `
+        <div class="tips-highlight"><strong>Professional Strategy</strong> – amounts in TZS</div>
+        <div>Start minimum TZS 2,000. Max risk 5% of bankroll. Recommended: TZS 200,000.</div>
+        <div class="mt-2"><strong>Auto Cash Out</strong><br>Bet A: TZS 15,000 at 1.8x → profit TZS 12,000. Bet B: TZS 5,000 at 5x → profit TZS 25,000.</div>
+        <div class="mt-2"><strong>Pink Windows</strong><br>In windows 57-59 & 01-03 increase stake to TZS 3,000. Hit rate above 80%.</div>
+        <div class="mt-2"><strong>Pattern Execution</strong><br>After two blues, bet TZS 4,000 on pink. After five purples, bet TZS 10,000 on pink above 20x.</div>
+        <div class="mt-2"><strong>Loss Recovery</strong><br>After three losses, stop 15 min. Resume TZS 1,000. Daily loss limit TZS 30,000.</div>
+        <div class="mt-2"><strong>Jackpot Prep</strong><br>Purple cluster → TZS 2,000 for 50x+. Auto cash out at 30x.</div>
+        <div class="mt-2"><strong>Multiplier Tracking</strong><br>Last five pinks below 15x → next pink 70% chance above 25x. Stake TZS 8,000.</div>
+        <div class="mt-2"><strong>Time Slots</strong><br>05:00-09:00 & 23:00-02:00 most profitable. Use TZS 20,000 at 2x.</div>
+        <div class="mt-2"><strong>Emotional Control</strong><br>Daily win limit TZS 100,000, loss limit TZS 50,000. Bet only when probability >65%.</div>
+        <div class="mt-2 small">Responsible gambling: 0800 006 008 or WhatsApp 076 675 0710.</div>
+    `;
+    
+    const ___getPinkIntervalPredictor = () => {
+        let html = `<div class="tips-highlight"><strong>Pink Interval Predictor</strong></div>`;
+        if (___state.pinkEvents.length === 0) html += `<div>No pink events. Use Add Pink with Multiplier.</div>`;
+        else {
+            const last = ___state.pinkEvents[___state.pinkEvents.length-1];
+            const baseTime = new Date(last.time);
+            const mins = baseTime.getMinutes();
+            const secs = baseTime.getSeconds();
+            html += `<div>Last pink: ${baseTime.toLocaleTimeString()} at ${last.multiplier}x</div>`;
+            if (last.multiplier >= 15) {
+                html += `<div class="mt-2"><strong>1,1,2,3 min intervals:</strong><br>`;
+                let n = mins+1; if(n>=60) n-=60; html += `+1 min: ~${n}:${secs}<br>`;
+                n = mins+2; if(n>=60) n-=60; html += `+2 min: ~${n}:${secs}<br>`;
+                n = mins+4; if(n>=60) n-=60; html += `+4 min: ~${n}:${secs}<br>`;
+                n = mins+7; if(n>=60) n-=60; html += `+7 min: ~${n}:${secs}</div>`;
+            }
+            if (last.multiplier >= 9.5 && last.multiplier <= 10.5) {
+                let huge = new Date(baseTime.getTime() + 20*60000);
+                html += `<div class="mt-2"><strong>10x rule:</strong> Next huge pink around ${huge.toLocaleTimeString()}, then apply 1,1,2,3.</div>`;
+            }
+        }
+        return html;
+    };
+    
+    const ___showAddPinkWithMultiplier = () => {
+        const html = `<div><strong>Add Pink with Multiplier</strong></div>
+        <div class="input-group mt-2"><input type="number" id="pink_multiplier_input" class="form-control" placeholder="Multiplier e.g. 15.5" step="0.1"><button id="confirm_pink_btn" class="btn_4f8a2c9e">Add Pink</button></div>
+        <div class="mt-2 small">Multiplier ≥15x triggers 1,1,2,3 intervals; ≈10x triggers +20min rule.</div>`;
+        ___showFeature('Add Pink with Multiplier', html);
+        document.getElementById('confirm_pink_btn')?.addEventListener('click', () => {
+            const mult = parseFloat(document.getElementById('pink_multiplier_input')?.value);
+            if (!isNaN(mult) && mult > 0) { ___addOutcome('PINK', mult); ___hidePanel(); }
+            else alert('Enter valid multiplier');
+        });
+    };
+    
+    const ___showFeature = (title, contentHTML) => {
+        ___dom.panelTitle.innerText = title;
+        ___dom.panelContent.innerHTML = contentHTML;
+        ___dom.featurePanel.classList.add('opn_9a2b4c7d');
+        ___dom.menuOverlay.style.display = 'block';
+        // Attach the professional compounding chart at the bottom of every menu view
+        ___attachMenuCompoundingChart();
+    };
+    const ___hidePanel = () => {
+        ___dom.featurePanel.classList.remove('opn_9a2b4c7d');
+        ___dom.menuOverlay.style.display = 'none';
+    };
+    
+    const ___showMainMenu = () => {
+        const html = `
+            <button class="menu-item" id="feat_pattern">Pattern Detector</button>
+            <button class="menu-item" id="feat_comp">Compounding Table TZS</button>
+            <button class="menu-item" id="feat_cash">Cash-out Advisor</button>
+            <button class="menu-item" id="feat_pink_interval">Pink Interval Predictor</button>
+            <button class="menu-item" id="feat_add_pink_mult">Add Pink with Multiplier</button>
+            <button class="menu-item" id="feat_tips">Professional Strategy Tips TZS</button>
+            <button class="menu-item" id="feat_disc">Disclaimer</button>
+        `;
+        ___showFeature('Pink Hunter Menu', html);
+        document.getElementById('feat_pattern')?.addEventListener('click', () => { ___hidePanel(); ___showFeature('Pattern Detector', `<div>${___detectPatterns()}</div>`); });
+        document.getElementById('feat_comp')?.addEventListener('click', () => {
+            let rows = '', base = 1000;
+            for(let i=0;i<20;i++) {
+                rows += `<tr><td class="text-center">${i+1}</td><td class="text-center">1.20x</td><td class="text-end">${base.toFixed(0)} TZS</td><td class="text-end">${(base*1.2).toFixed(0)} TZS</td></tr>`;
+                base *= 1.2;
+            }
+            const tableHtml = `<div class="table-responsive"><table class="table table-striped table_glass"><thead><tr><th>Round</th><th>Multiplier</th><th>Placed TZS</th><th>Cashed TZS</th></tr></thead><tbody>${rows}</tbody></table></div><div class="mt-2 small">Start 1,000 TZS, each round 1.20x</div>`;
+            ___hidePanel(); ___showFeature('Compounding Table TZS', tableHtml);
+        });
+        document.getElementById('feat_cash')?.addEventListener('click', () => { ___hidePanel(); ___showFeature('Cash-out Advisor', `<div>Recommended cash-out: 20x. Last ${___state.outcomes.filter(o=>o.color==='PINK').length} pinks recorded.<br>For TZS 2,000 stake, 20x yields 40,000 TZS profit.</div>`); });
+        document.getElementById('feat_pink_interval')?.addEventListener('click', () => { ___hidePanel(); ___showFeature('Pink Interval Predictor', ___getPinkIntervalPredictor()); });
+        document.getElementById('feat_add_pink_mult')?.addEventListener('click', () => { ___hidePanel(); ___showAddPinkWithMultiplier(); });
+        document.getElementById('feat_tips')?.addEventListener('click', () => { ___hidePanel(); ___showFeature('Professional Strategy Tips TZS', ___getProfessionalTips()); });
+        document.getElementById('feat_disc')?.addEventListener('click', () => { ___hidePanel(); ___showFeature('Disclaimer', `<div>Algorithm may change. Informational only. Created by ramsny. Gamble responsibly.</div>`); });
+    };
+    
+    // -------- Draggable button --------
+    const ___initDraggable = () => {
+        let isDragging = false, dragStartX=0, dragStartY=0, dragMoved=false, startLeft=0, startTop=0;
+        const btn = ___dom.floatingBtn;
+        const onStart = (e) => { e.preventDefault(); const t = e.touches ? e.touches[0] : e; dragStartX = t.clientX; dragStartY = t.clientY; const rect = btn.getBoundingClientRect(); startLeft = rect.left; startTop = rect.top; dragMoved = false; isDragging = true; btn.style.cursor = 'grabbing'; };
+        const onMove = (e) => { if (!isDragging) return; const t = e.touches ? e.touches[0] : e; let dx = t.clientX - dragStartX, dy = t.clientY - dragStartY; if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragMoved = true; let newLeft = startLeft + dx, newTop = startTop + dy; newLeft = Math.min(window.innerWidth - 60, Math.max(0, newLeft)); newTop = Math.min(window.innerHeight - 60, Math.max(0, newTop)); btn.style.left = newLeft + 'px'; btn.style.top = newTop + 'px'; btn.style.right = 'auto'; btn.style.bottom = 'auto'; };
+        const onEnd = () => { if (!isDragging) return; isDragging = false; btn.style.cursor = 'grab'; if (!dragMoved) ___showMainMenu(); };
+        btn.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
+        btn.addEventListener('touchstart', onStart); window.addEventListener('touchmove', onMove); window.addEventListener('touchend', onEnd);
+    };
+    
+    // -------- Bootstrap with loader (2 seconds) --------
+    const ___bootstrap = () => {
+        ___dom.loaderOverlay = document.getElementById('loaderOverlay');
+        ___dom.mainContent = document.getElementById('main_cntnt_4c8e2a7f');
+        ___dom.gaugeFill = document.getElementById('gauge_fill_2e7a4c9d');
+        ___dom.gaugeText = document.getElementById('gauge_txt_8a3f2c6e');
+        ___dom.alertBadge = document.getElementById('alert_bdg_4c7a2f9e');
+        ___dom.winList = document.getElementById('win_list_7a2c4e9f');
+        ___dom.liveMinute = document.getElementById('live_min_6b2e4f8a');
+        ___dom.historyLog = document.getElementById('hist_log_5d2a7c4e');
+        ___dom.patternAlert = document.getElementById('pat_alert_8e2c4a7d');
+        ___dom.fcstBars = document.getElementById('fcst_bars_4a7e2c9d');
+        ___dom.addBlue = document.getElementById('add_blue_2c7a4d9f');
+        ___dom.addPurple = document.getElementById('add_purple_8f3a2c7e');
+        ___dom.addPink = document.getElementById('add_pink_4d9c2a7e');
+        ___dom.resetOuts = document.getElementById('reset_outs_1a7c4e9d');
+        ___dom.floatingBtn = document.getElementById('flt_btn_2d8a7f3e');
+        ___dom.menuOverlay = document.getElementById('ovrly_4c9e2b7a');
+        ___dom.featurePanel = document.getElementById('pnl_5f1d3c8e');
+        ___dom.panelTitle = document.getElementById('pnl_ttl_3a9f2c7e');
+        ___dom.panelContent = document.getElementById('pnl_cntnt_3d7b2e9f');
+        ___dom.closePanel = document.getElementById('cls_pnl_4b8e2c7a');
+        ___dom.dynamicCanvas = document.getElementById('dyn_canvas_3c7a2e8f');
+        ___dom.clickFeedback = document.getElementById('click_fb_9f2c4a7e');
+        ___dom.chartTitle = document.getElementById('chart_ttl_2a7c4e9d');
+        ___dom.liveTimestamp = document.getElementById('live_ts_6d2a4f8e');
+        ___dom.currentYearSpan = document.getElementById('curr_year_2a4c7e9f');
+        
+        ___loadOutcomes();
+        const circ = 2 * Math.PI * 85;
+        ___dom.gaugeFill.style.strokeDasharray = circ;
+        ___dom.gaugeFill.style.strokeDashoffset = circ;
+        
+        ___dom.addBlue.addEventListener('click', () => ___addOutcome('BLUE'));
+        ___dom.addPurple.addEventListener('click', () => ___addOutcome('PURPLE'));
+        ___dom.addPink.addEventListener('click', () => ___addOutcome('PINK', null));
+        ___dom.resetOuts.addEventListener('click', ___resetOutcomes);
+        ___dom.closePanel.addEventListener('click', ___hidePanel);
+        ___dom.menuOverlay.addEventListener('click', ___hidePanel);
+        
+        document.querySelectorAll('.switch_opt_9f4d2a7c').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.switch_opt_9f4d2a7c').forEach(o=>o.classList.remove('actv_1e3b5c7d'));
+                opt.classList.add('actv_1e3b5c7d');
+                ___state.currentStyle = opt.dataset.style;
+                ___renderChart();
+            });
+        });
+        
+        ___populateWindowsList();
+        ___updateHistoryUI();
+        
+        setTimeout(() => {
+            ___dom.loaderOverlay.style.opacity = '0';
+            setTimeout(() => {
+                ___dom.loaderOverlay.style.display = 'none';
+                ___dom.mainContent.style.display = 'block';
+                ___refreshAll();
+                ___state.updateInterval = setInterval(___refreshAll, 900);
+                ___dom.currentYearSpan.innerText = new Date().getFullYear();
+                ___initDraggable();
+            }, 200);
+        }, 2000);
+    };
+    
+    ___bootstrap();
+})();
+</script>
+</body>
+</html>            color: white;
             font-family: monospace;
             transition: opacity 0.5s;
         }
