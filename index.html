@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Pink Hunter | RMS Group Intelligence Core</title>
+    <title>Pink Hunter | RMS Group Probability Core</title>
     <!-- Chart.js + D3.js + Particles.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -12,22 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* ------------------------------------------------------------
-           ADVANCED CSS – CUSTOM PROPERTIES, LAYERED DESIGN, MEDIA QUERIES
-           FIXED GAUGE (TEXT NOT ROTATED), FULLY RESPONSIVE, DARK THEME
-           RMS GROUP PROFESSIONAL FOOTER – STICKS TO BOTTOM
+           MOBILE-FIRST DESIGN – NO BORDER-RADIUS ON ANY BORDERED ELEMENT
+           EXCEPT CIRCULAR MENU BUTTON. NO EMOJIS, PROFESSIONAL FOOTER
         ------------------------------------------------------------ */
-        :root {
-            --bg-deep: #0A0E17;
-            --bg-card: #131C2C;
-            --bg-elevated: #0F1725;
-            --border-subtle: #2A3A52;
-            --text-primary: #F0F3FA;
-            --text-secondary: #8A9BB0;
-            --accent-primary: #E85D3A;
-            --accent-secondary: #00d4ff;
-            --shadow-md: 0 8px 20px rgba(0,0,0,0.3);
-            --transition-smooth: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
         * {
             margin: 0;
             padding: 0;
@@ -35,9 +23,9 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            background: var(--bg-deep);
+            background: #0A0E17;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            color: var(--text-primary);
+            color: #F0F3FA;
             position: relative;
             overflow-x: hidden;
             min-height: 100vh;
@@ -57,8 +45,8 @@
             flex: 1;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 32px;
-            padding-bottom: 60px;
+            padding: 20px;
+            padding-bottom: 40px;
             position: relative;
             z-index: 2;
         }
@@ -66,7 +54,7 @@
         .loader-overlay {
             position: fixed;
             inset: 0;
-            background: var(--bg-deep);
+            background: #0A0E17;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -77,37 +65,36 @@
             width: 64px;
             height: 64px;
             border-radius: 50%;
-            background: conic-gradient(from 0deg, var(--accent-primary), #FFFFFF, var(--accent-primary));
+            background: conic-gradient(from 0deg, #E85D3A, #FFFFFF, #E85D3A);
             animation: spinLoader 0.8s linear infinite;
             mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
         }
         @keyframes spinLoader { 100% { transform: rotate(360deg); } }
-        /* Circular Hamburger Menu – perfect circle, well designed */
+        /* Circular menu button – only element with border-radius */
         .circular-menu-btn {
             position: fixed;
-            bottom: 32px;
-            right: 32px;
-            width: 64px;
-            height: 64px;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
             background: #1F2A3E;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid #2A3A52;
             border-radius: 50%;
             cursor: pointer;
             z-index: 1000;
-            transition: var(--transition-smooth);
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .circular-menu-btn:hover { background: var(--accent-primary); border-color: var(--accent-primary); transform: scale(1.02); }
+        .circular-menu-btn:hover { background: #E85D3A; border-color: #E85D3A; transform: scale(1.02); }
         .circular-menu-btn span {
             display: block;
-            width: 24px;
+            width: 22px;
             height: 2px;
             background: white;
             margin: 4px 0;
-            border-radius: 2px;
         }
         .circular-menu-btn:active { transform: scale(0.96); }
         .menu-overlay {
@@ -120,148 +107,135 @@
         }
         .menu-panel {
             position: fixed;
-            bottom: 112px;
-            right: 32px;
-            width: 500px;
-            max-width: calc(100vw - 64px);
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
+            bottom: 100px;
+            right: 24px;
+            width: 90%;
+            max-width: 450px;
+            background: #131C2C;
+            border: 1px solid #2A3A52;
             z-index: 1002;
             display: none;
             flex-direction: column;
             overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
         .menu-panel.open { display: flex; }
         .menu-header {
-            padding: 18px 24px;
-            background: var(--bg-elevated);
+            padding: 16px 20px;
+            background: #0F1725;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-subtle);
-            color: var(--accent-secondary);
+            border-bottom: 1px solid #2A3A52;
+            color: #00d4ff;
         }
         .menu-header button {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
-            color: var(--text-secondary);
+            color: #8A9BB0;
             transition: 0.2s;
         }
-        .menu-header button:hover { color: var(--accent-primary); transform: scale(1.1); }
+        .menu-header button:hover { color: #E85D3A; }
         .menu-content {
-            padding: 20px;
+            padding: 16px;
             max-height: 65vh;
             overflow-y: auto;
-            scrollbar-width: thin;
         }
-        /* Well-designed menu items */
         .menu-item {
             display: block;
             width: 100%;
-            padding: 14px 20px;
-            margin-bottom: 10px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
             text-align: left;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
+            background: #0F1725;
+            border: 1px solid #2A3A52;
             cursor: pointer;
-            transition: var(--transition-smooth);
+            transition: all 0.2s ease;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-primary);
+            font-size: 0.85rem;
+            color: #F0F3FA;
         }
         .menu-item:hover {
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
-            transform: translateX(6px);
-            color: white;
+            background: #E85D3A;
+            border-color: #E85D3A;
+            transform: translateX(4px);
         }
-        /* Table styling inside menu */
         .menu-table {
             width: 100%;
             border-collapse: collapse;
-            background: var(--bg-elevated);
-            color: var(--text-primary);
-            font-size: 0.75rem;
-            border-radius: 12px;
-            overflow: hidden;
+            background: #0F1725;
+            color: #F0F3FA;
+            font-size: 0.7rem;
         }
         .menu-table th, .menu-table td {
-            border: 1px solid var(--border-subtle);
-            padding: 10px 12px;
+            border: 1px solid #2A3A52;
+            padding: 8px 10px;
             text-align: left;
         }
-        .menu-table th { background: #1E2A3A; color: var(--accent-secondary); font-weight: 700; }
+        .menu-table th { background: #1E2A3A; color: #00d4ff; font-weight: 700; }
         .tips-grid {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
         .tip-card {
-            background: var(--bg-elevated);
-            border-left: 4px solid var(--accent-primary);
-            padding: 14px 18px;
-            border-radius: 14px;
-            transition: 0.2s;
+            background: #0F1725;
+            border-left: 4px solid #E85D3A;
+            padding: 12px 14px;
         }
-        .tip-card:hover { transform: translateX(4px); background: #1a2538; }
-        .tip-title { font-weight: 800; color: var(--accent-primary); margin-bottom: 8px; font-size: 0.9rem; }
-        .tip-desc { color: #b8c7e7; line-height: 1.45; font-size: 0.8rem; }
-        /* Dashboard grid */
+        .tip-title { font-weight: 800; color: #E85D3A; margin-bottom: 6px; font-size: 0.85rem; }
+        .tip-desc { color: #b8c7e7; line-height: 1.4; font-size: 0.75rem; }
+        /* Dashboard grid – mobile first */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 32px;
-            margin-top: 24px;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-top: 20px;
         }
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 24px;
+            background: #131C2C;
+            border: 1px solid #2A3A52;
             transition: box-shadow 0.2s ease;
             overflow: hidden;
         }
-        .card:hover { box-shadow: var(--shadow-md); }
+        .card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
         .card-header {
-            padding: 20px 24px 12px;
-            border-bottom: 1px solid var(--border-subtle);
+            padding: 16px 20px 8px;
+            border-bottom: 1px solid #2A3A52;
         }
-        .card-title { font-weight: 700; font-size: 1.3rem; color: white; letter-spacing: -0.3px; }
-        .card-sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px; }
-        .card-content { padding: 20px 24px 24px; }
-        /* FIXED GAUGE: circle rotated, text not */
+        .card-title { font-weight: 700; font-size: 1.2rem; color: white; }
+        .card-sub { font-size: 0.65rem; color: #8A9BB0; margin-top: 4px; }
+        .card-content { padding: 16px 20px 20px; }
+        /* Fixed circular gauge */
         .gauge-container {
             display: flex;
             justify-content: center;
-            margin: 16px 0;
-            position: relative;
+            margin: 12px 0;
         }
         .gauge-svg {
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
         }
         .gauge-circle-bg {
             fill: none;
-            stroke: var(--border-subtle);
+            stroke: #2A3A52;
             stroke-width: 12;
         }
         .gauge-circle-fill {
             fill: none;
-            stroke: var(--accent-primary);
+            stroke: #E85D3A;
             stroke-width: 12;
             stroke-linecap: round;
-            stroke-dasharray: 534;
-            stroke-dashoffset: 534;
+            stroke-dasharray: 502; /* circumference 2*pi*80 ≈ 502.65 */
+            stroke-dashoffset: 502;
             transition: stroke-dashoffset 0.3s ease;
         }
         .gauge-text {
-            font-size: 34px;
+            font-size: 28px;
             font-weight: 800;
             fill: white;
             text-anchor: middle;
@@ -270,223 +244,203 @@
         .probability-meta {
             display: flex;
             justify-content: center;
-            gap: 28px;
-            margin-top: 12px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: #8A9BB0;
             flex-wrap: wrap;
         }
         .alert-badge {
             background: #1E2A3A;
-            padding: 12px 16px;
-            font-size: 0.8rem;
-            border-left: 4px solid var(--accent-primary);
-            border-radius: 16px;
-            margin-top: 20px;
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            border-left: 4px solid #E85D3A;
+            margin-top: 16px;
         }
         .timeline-card {
-            background: var(--bg-elevated);
-            padding: 16px;
-            margin-top: 20px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
+            background: #0F1725;
+            padding: 14px;
+            margin-top: 16px;
+            border: 1px solid #2A3A52;
         }
-        .windows-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .windows-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
         .window-tag {
             font-family: monospace;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             background: #1E2A3A;
-            padding: 5px 14px;
-            color: var(--accent-primary);
-            border: 1px solid var(--border-subtle);
-            border-radius: 40px;
-            font-weight: 600;
+            padding: 4px 10px;
+            color: #E85D3A;
+            border: 1px solid #2A3A52;
         }
-        .outcome-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 16px; }
+        .outcome-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 12px; }
         .btn-outcome {
-            border: 1px solid var(--border-subtle);
-            padding: 9px 22px;
+            border: 1px solid #2A3A52;
+            padding: 8px 16px;
             font-weight: 600;
-            background: var(--bg-elevated);
-            color: var(--text-primary);
+            background: #0F1725;
+            color: #F0F3FA;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            font-size: 0.8rem;
-            border-radius: 40px;
+            transition: all 0.2s;
+            font-size: 0.75rem;
         }
         .btn-outcome:hover {
-            background: var(--accent-primary);
-            border-color: var(--accent-primary);
+            background: #E85D3A;
+            border-color: #E85D3A;
             color: white;
-            transform: scale(0.97);
         }
         .history-log {
-            background: var(--bg-elevated);
-            padding: 12px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
+            background: #0F1725;
+            padding: 10px;
+            border: 1px solid #2A3A52;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            max-height: 120px;
+            gap: 6px;
+            max-height: 100px;
             overflow-y: auto;
         }
         .history-badge {
             background: #1E2A3A;
-            padding: 5px 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            border: 1px solid var(--border-subtle);
-            border-radius: 30px;
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            border: 1px solid #2A3A52;
         }
         .pattern-alert {
             background: #1E2A3A;
-            padding: 14px;
-            margin-top: 16px;
-            font-size: 0.75rem;
-            border-left: 4px solid var(--accent-primary);
-            border-radius: 16px;
+            padding: 10px 12px;
+            margin-top: 14px;
+            font-size: 0.7rem;
+            border-left: 4px solid #E85D3A;
         }
-        .heatmap-row { display: flex; gap: 5px; flex-wrap: wrap; margin: 12px 0; }
+        .heatmap-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 10px 0; }
         .heatmap-cell {
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             background: #1E2A3A;
-            border-radius: 8px;
-            transition: transform 0.1s;
         }
         .heatmap-cell[data-color="BLUE"] { background: #3B7EA5; }
         .heatmap-cell[data-color="PURPLE"] { background: #8B5F8C; }
         .heatmap-cell[data-color="PINK"] { background: #E2728A; }
         .chart-switch-group {
-            background: var(--bg-elevated);
-            padding: 5px;
+            background: #0F1725;
+            padding: 4px;
             display: flex;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 60px;
+            margin-bottom: 16px;
+            border: 1px solid #2A3A52;
         }
         .chart-opt {
             flex: 1;
             text-align: center;
-            padding: 7px 6px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            padding: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            color: var(--text-secondary);
-            border-radius: 40px;
+            transition: all 0.2s;
+            color: #8A9BB0;
         }
         .chart-opt.active {
-            background: var(--accent-primary);
+            background: #E85D3A;
             color: white;
         }
-        .canvas-chart { height: 280px; width: 100%; }
-        .forecast-bars { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 6px; }
+        .canvas-chart { height: 250px; width: 100%; }
+        .forecast-bars { display: flex; gap: 6px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
         .forecast-item {
-            flex: 0 0 42px;
+            flex: 0 0 36px;
             text-align: center;
-            font-size: 0.6rem;
-            color: var(--text-secondary);
+            font-size: 0.55rem;
+            color: #8A9BB0;
         }
         .forecast-bar {
-            background: var(--accent-primary);
-            width: 26px;
+            background: #E85D3A;
+            width: 22px;
             margin: 0 auto;
             transition: height 0.2s;
-            border-radius: 4px;
         }
         .shortcuts-hint {
-            background: var(--bg-elevated);
-            padding: 8px 14px;
-            font-size: 0.65rem;
+            background: #0F1725;
+            padding: 6px 12px;
+            font-size: 0.6rem;
             display: inline-block;
-            margin-top: 14px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 40px;
-            color: var(--text-secondary);
+            margin-top: 12px;
+            border: 1px solid #2A3A52;
+            color: #8A9BB0;
         }
-        /* RMS GROUP PROFESSIONAL FOOTER – fully responsive, sticky bottom */
+        /* RMS Group Footer – professional, no border-radius */
         .rms-footer {
             background: #0F1117;
-            border-top: 1px solid var(--border-subtle);
-            padding: 48px 0 24px;
+            border-top: 1px solid #2A3A52;
+            padding: 32px 0 20px;
             margin-top: auto;
             width: 100%;
         }
         .footer-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 20px;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            gap: 32px;
+            gap: 24px;
         }
         .footer-section {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
         }
         .footer-section h2 {
-            font-size: 1.4rem;
-            color: var(--accent-secondary);
-            margin-bottom: 12px;
-            letter-spacing: -0.3px;
+            font-size: 1.2rem;
+            color: #00d4ff;
+            margin-bottom: 10px;
         }
         .footer-section h3 {
-            font-size: 1rem;
-            margin-bottom: 16px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
             color: #ddd;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .footer-section p, .footer-section a {
             color: #9aa4bf;
             text-decoration: none;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             transition: color 0.2s;
         }
-        .footer-section a:hover { color: var(--accent-secondary); }
+        .footer-section a:hover { color: #00d4ff; }
         .footer-section i {
-            color: var(--accent-secondary);
-            width: 22px;
-            font-size: 1rem;
+            color: #00d4ff;
+            width: 20px;
+            font-size: 0.9rem;
         }
         .tagline {
             font-style: italic;
-            margin-top: 8px;
-            color: var(--accent-secondary) !important;
+            margin-top: 6px;
+            color: #00d4ff !important;
         }
         .footer-bottom {
             text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-subtle);
-            font-size: 0.7rem;
+            margin-top: 28px;
+            padding-top: 16px;
+            border-top: 1px solid #2A3A52;
+            font-size: 0.65rem;
             color: #6c7a8e;
         }
-        /* MEDIA QUERIES – fully responsive */
-        @media (max-width: 960px) {
-            .dashboard-grid { grid-template-columns: 1fr; gap: 24px; }
-            .app-container { padding: 20px; }
-            .gauge-svg { width: 150px; height: 150px; }
-            .gauge-text { font-size: 28px; }
-        }
-        @media (max-width: 640px) {
-            .menu-panel { right: 16px; bottom: 96px; width: calc(100vw - 32px); }
-            .circular-menu-btn { bottom: 20px; right: 20px; width: 56px; height: 56px; }
-            .footer-container { flex-direction: column; text-align: center; }
-            .footer-section a, .footer-section p { justify-content: center; }
-            .probability-meta { gap: 16px; flex-direction: column; align-items: center; }
-            .card-title { font-size: 1.1rem; }
+        /* Tablet and desktop */
+        @media (min-width: 768px) {
+            .app-container { padding: 32px; }
+            .dashboard-grid { grid-template-columns: 1fr 1.2fr; gap: 28px; }
+            .gauge-svg { width: 180px; height: 180px; }
+            .gauge-text { font-size: 34px; }
+            .card-title { font-size: 1.3rem; }
+            .menu-panel { width: 480px; right: 32px; bottom: 112px; }
+            .circular-menu-btn { width: 64px; height: 64px; bottom: 32px; right: 32px; }
         }
         @media (max-width: 480px) {
-            .outcome-buttons .btn-outcome { padding: 6px 14px; font-size: 0.7rem; }
-            .window-tag { font-size: 0.6rem; padding: 3px 10px; }
+            .outcome-buttons .btn-outcome { padding: 6px 12px; font-size: 0.7rem; }
+            .window-tag { font-size: 0.6rem; padding: 3px 8px; }
+            .probability-meta { gap: 12px; }
         }
     </style>
 </head>
@@ -494,11 +448,11 @@
 <div id="particles-js"></div>
 <div id="loaderOverlay" class="loader-overlay"><div class="circular-loader"></div></div>
 <div class="app-container" id="mainApp" style="display: none;">
-    <!-- Circular Hamburger Menu -->
+    <!-- Circular menu button (no emojis) -->
     <div id="menuBtn" class="circular-menu-btn"><div><span></span><span></span><span></span></div></div>
     <div id="menuOverlay" class="menu-overlay"></div>
     <div id="menuPanel" class="menu-panel">
-        <div class="menu-header"><span id="panelTitle">Pink Hunter · Strategy Core</span><button id="closePanelBtn">✕</button></div>
+        <div class="menu-header"><span id="panelTitle">Pink Hunter Strategy Core</span><button id="closePanelBtn">✕</button></div>
         <div id="panelContent" class="menu-content"></div>
     </div>
     <div class="dashboard-grid">
@@ -506,13 +460,13 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title">Probability Engine</div>
-                <div class="card-sub">Real‑time inference · pattern logic · market stability</div>
+                <div class="card-sub">Real-time inference · pattern logic · market stability</div>
             </div>
             <div class="card-content">
                 <div class="gauge-container">
                     <svg width="180" height="180" viewBox="0 0 200 200" class="gauge-svg">
-                        <circle cx="100" cy="100" r="85" class="gauge-circle-bg" />
-                        <circle cx="100" cy="100" r="85" class="gauge-circle-fill" id="gaugeCircleFill" />
+                        <circle cx="100" cy="100" r="80" class="gauge-circle-bg" />
+                        <circle cx="100" cy="100" r="80" class="gauge-circle-fill" id="gaugeCircleFill" />
                         <text x="100" y="100" class="gauge-text" id="gaugePercent">0%</text>
                     </svg>
                 </div>
@@ -527,7 +481,7 @@
                     <div class="windows-row" id="windowsContainer"></div>
                     <div id="liveMinute" style="margin-top: 8px; font-family: monospace;">Now: -- min</div>
                 </div>
-                <div style="font-weight: 700; margin-top: 20px;">Outcome ingestion</div>
+                <div style="font-weight: 700; margin-top: 16px;">Outcome ingestion</div>
                 <div class="outcome-buttons">
                     <button class="btn-outcome" id="addBlueBtn">Blue</button>
                     <button class="btn-outcome" id="addPurpleBtn">Purple</button>
@@ -535,11 +489,11 @@
                     <button class="btn-outcome" id="resetOutcomesBtn">Reset</button>
                 </div>
                 <div id="historyLog" class="history-log">No rounds recorded.</div>
-                <div style="font-weight: 700; margin-top: 16px;">Pattern heatmap · last 30 rounds</div>
+                <div style="font-weight: 700; margin-top: 14px;">Pattern heatmap · last 30 rounds</div>
                 <div id="heatmapContainer" class="heatmap-row"></div>
                 <div id="patternAlert" class="pattern-alert">Awaiting outcome data for pattern detection</div>
-                <div class="shortcuts-hint">⌨️ Keyboard: B=Blue  P=Purple  K=Pink  R=Reset  Ctrl+Z=Undo</div>
-                <div style="margin-top: 20px;">
+                <div class="shortcuts-hint">Keyboard: B=Blue  P=Purple  K=Pink  R=Reset  Ctrl+Z=Undo</div>
+                <div style="margin-top: 16px;">
                     <div style="font-weight: 700; margin-bottom: 8px;">Forecast · next 15 minutes</div>
                     <div id="forecastContainer" class="forecast-bars"></div>
                 </div>
@@ -549,7 +503,7 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title" id="chartTitle">Momentum Oscillator</div>
-                <div class="card-sub" id="liveTimestamp">Real‑time trend · interactive</div>
+                <div class="card-sub" id="liveTimestamp">Real-time trend · interactive</div>
             </div>
             <div class="card-content">
                 <div class="chart-switch-group" id="chartSwitcher">
@@ -559,20 +513,20 @@
                     <div class="chart-opt" data-style="combo">Combo</div>
                 </div>
                 <div class="canvas-chart"><canvas id="mainChart" width="700" height="280"></canvas></div>
-                <div id="chartFeedback" style="margin-top: 8px; font-size:0.7rem; text-align:center;"></div>
-                <div id="strategyAdvice" class="pattern-alert" style="margin-top: 16px;">Strategy advice will appear here based on recent outcomes.</div>
+                <div id="chartFeedback" style="margin-top: 8px; font-size:0.65rem; text-align:center;"></div>
+                <div id="strategyAdvice" class="pattern-alert" style="margin-top: 14px;">Strategy advice will appear based on recent outcomes.</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- RMS GROUP PROFESSIONAL FOOTER (fully responsive) -->
+<!-- RMS Group Footer (professional, no emojis) -->
 <footer class="rms-footer">
     <div class="footer-container">
         <div class="footer-section">
             <h2>RMS Group</h2>
             <p>Expert software engineering solutions across Tanzania and beyond.</p>
-            <p class="tagline">"We build the future of imagination"</p>
+            <p class="tagline">Building the future of imagination</p>
         </div>
         <div class="footer-section">
             <h3>Contact</h3>
@@ -586,52 +540,29 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>Created and Metallized by <strong>RMS Group</strong> | &copy; 2026 All Rights Reserved</p>
+        <p>Created and Metallized by RMS Group | &copy; 2026 All Rights Reserved</p>
     </div>
 </footer>
 
 <script>
 /**
- * Pink Hunter – Ultimate Production Dashboard with RMS Group Footer
- * @fileoverview Full Aviator strategy suite: updated pink windows (original + community),
+ * Pink Hunter – Ultimate Production Dashboard
+ * @fileoverview Mobile-first, zero border-radius on bordered elements (except circular menu),
+ * no emojis, professional footer. Full Aviator strategy suite with updated pink windows,
  * rule of three blues, deep blue pink hunt, instaloss detection, purple sandwich,
- * double bet hedge, 10x stacking plan, market stability index, circular gauge fixed,
- * fully responsive, hamburger menu with well-designed components.
+ * double bet hedge, market stability index, and circular gauge.
  * @author ramsny (ramsulley@gmail.com) / RMS Group
- * @version 28.0.0
+ * @version 29.0.0
  * @date 2026-04-14
  * @license Educational & informational use only
- * 
- * @description This module implements:
- * - Real-time probability based on pink windows (original + community hourly slots)
- * - Pattern bonuses (rule of three blues, deep blue streak, purple sandwich, instaloss penalty, 1.09x trigger)
- * - Dynamic strategy advice panel
- * - Outcome tracking with localStorage persistence
- * - Heatmap visualization of last 30 rounds
- * - Chart.js momentum chart with multiple styles (line, wave, bar, combo)
- * - D3 compounding chart inside hamburger menu
- * - Keyboard shortcuts (B, P, K, R, Ctrl+Z)
- * - Responsive layout with particles.js background
- * - RMS Group professional footer that sticks to bottom
  */
-
 (function() {
-    // ---------- UPDATED PINK WINDOWS (original + community) ----------
-    /**
-     * @constant {Array<Array<number>>} PINK_WINDOWS
-     * @description Combined list of guaranteed pink windows from original analysis and community hourly slots.
-     */
+    // Pink windows (original + community)
     const PINK_WINDOWS = [
-        [57,60], [0,3], [20,22], [29,31], [40,42], [45,47], [50,52],  // original
-        [2,5], [8,9], [18,22], [28,30], [35,38], [41,42], [55,57]      // community reported
+        [57,60], [0,3], [20,22], [29,31], [40,42], [45,47], [50,52],
+        [2,5], [8,9], [18,22], [28,30], [35,38], [41,42], [55,57]
     ].sort((a,b) => a[0]-b[0]);
     
-    /**
-     * @typedef {Object} Outcome
-     * @property {string} color - 'BLUE', 'PURPLE', or 'PINK'
-     * @property {number|null} multiplier - optional multiplier value for pink
-     * @property {string} timestamp - ISO timestamp
-     */
     let state = {
         outcomes: [],
         probHistory: [],
@@ -640,14 +571,13 @@
         pinkEvents: [],
         refreshInterval: null
     };
-    
     const dom = {};
 
-    // ---------- PARTICLES BACKGROUND ----------
+    // Particles background
     if (typeof particlesJS !== 'undefined') {
         particlesJS('particles-js', {
             particles: {
-                number: { value: 70, density: { enable: true, value_area: 800 } },
+                number: { value: 60, density: { enable: true, value_area: 800 } },
                 color: { value: '#E85D3A' },
                 shape: { type: 'circle' },
                 opacity: { value: 0.25, random: true },
@@ -659,33 +589,20 @@
         });
     }
 
-    // ---------- PERSISTENCE LAYER ----------
-    /**
-     * Loads saved outcomes and pink events from localStorage.
-     * @function loadData
-     */
+    // Persistence
     const loadData = () => {
-        const saved = localStorage.getItem('pinkHunter_v28');
+        const saved = localStorage.getItem('pinkHunter_v29');
         if (saved) {
             try { const p = JSON.parse(saved); state.outcomes = p.outcomes || []; state.pinkEvents = p.pinkEvents || []; } catch(e) {}
         }
     };
-    /**
-     * Persists current outcomes and pink events to localStorage.
-     * @function saveData
-     */
     const saveData = () => {
-        localStorage.setItem('pinkHunter_v28', JSON.stringify({ outcomes: state.outcomes, pinkEvents: state.pinkEvents }));
+        localStorage.setItem('pinkHunter_v29', JSON.stringify({ outcomes: state.outcomes, pinkEvents: state.pinkEvents }));
     };
 
-    // ---------- CORE HELPERS ----------
+    // Helpers
     const isInPinkZone = (minute) => PINK_WINDOWS.some(([s,e]) => minute >= s && minute < e);
     const isPeakSlot = (hour) => (hour >= 5 && hour < 9) || (hour >= 15 && hour < 20) || (hour >= 23 || hour < 2);
-    
-    /**
-     * Evaluates market stability based on last 10 outcomes.
-     * @returns {string} Stability description
-     */
     const getMarketStability = () => {
         const last10 = state.outcomes.slice(-10).map(o => o.color);
         const purpleCount = last10.filter(c => c === 'PURPLE').length;
@@ -695,12 +612,6 @@
         if (instalossCount > 0) return "Volatile / Drain Phase – Avoid betting";
         return "Unstable – Wait for purple density";
     };
-    
-    /**
-     * Computes pattern-based bonus for probability.
-     * Implements rule of three blues, deep blue streak, purple sandwich, instaloss penalty, pink trigger.
-     * @returns {number} Bonus value between -15 and +30
-     */
     const getAdvancedPatternBonus = () => {
         const colors = state.outcomes.map(o => o.color);
         if (colors.length < 3) return 0;
@@ -718,13 +629,6 @@
         if (lastOutcome && lastOutcome.multiplier && lastOutcome.multiplier >= 1.09 && lastOutcome.multiplier <= 1.11) bonus += 18;
         return Math.max(-15, Math.min(30, bonus));
     };
-    
-    /**
-     * Main probability calculation engine.
-     * @param {number} minuteFloat - Current minute with decimal
-     * @param {number} hour - Current hour (0-23)
-     * @returns {number} Probability between 15 and 95
-     */
     const computeProbability = (minuteFloat, hour) => {
         const recentColors = state.outcomes.slice(-10).map(o => o.color);
         const pinkCount = recentColors.filter(c => c === 'PINK').length;
@@ -748,10 +652,6 @@
         let prob = base + recentBonus + slotBonus + patternBonus;
         return Math.min(95, Math.max(15, Math.round(prob)));
     };
-    
-    /**
-     * Updates strategy advice panel based on recent patterns.
-     */
     const updateStrategyAdvice = () => {
         const colors = state.outcomes.map(o => o.color);
         const last5 = colors.slice(-5);
@@ -768,23 +668,19 @@
         dom.strategyAdvice.innerHTML = `Strategy Signal: ${advice}<br>Market status: ${marketStable}`;
         dom.marketStatus.innerText = marketStable.split("–")[0];
     };
-    
-    // ---------- UI UPDATES (gauge, history, heatmap) ----------
     const updateGauge = (value) => {
-        const circumference = 2 * Math.PI * 85;
+        const circumference = 2 * Math.PI * 80;
         let offset = circumference - (value / 100) * circumference;
         dom.gaugeCircleFill.style.strokeDashoffset = offset;
         dom.gaugePercent.textContent = value + '%';
         dom.gaugeCircleFill.setAttribute('stroke', value < 30 ? '#E2728A' : '#E85D3A');
     };
-    
     const updateStatus = (now) => {
         const minuteFloat = now.getMinutes() + now.getSeconds() / 60;
         dom.windowStatus.innerText = isInPinkZone(minuteFloat) ? "Yes" : "No";
         dom.slotStatus.innerText = isPeakSlot(now.getHours()) ? "Peak hours" : "Standard";
         dom.liveMinute.innerText = `Now: ${minuteFloat.toFixed(1)} min`;
     };
-    
     const detectPatterns = () => {
         const colors = state.outcomes.map(o => o.color);
         if (colors.length < 2) return "Insufficient data. Add outcomes to enable pattern detection.";
@@ -800,13 +696,11 @@
         if (consPurple >= 5) alerts.push(`Pattern 2.3: ${consPurple} purples → pink above 20x likely`);
         return alerts.length ? alerts.join(" · ") : "No active pattern detected. Continue observing.";
     };
-    
     const renderHeatmap = () => {
         const last30 = state.outcomes.slice(-30).map(o => o.color);
         dom.heatmapContainer.innerHTML = last30.map((color, idx) => `<div class="heatmap-cell" data-color="${color}" title="Round ${idx+1}: ${color}"></div>`).join('');
         if (last30.length === 0) dom.heatmapContainer.innerHTML = '<span class="small">No data</span>';
     };
-    
     const updateHistoryUI = () => {
         if (state.outcomes.length === 0) dom.historyLog.innerHTML = 'No rounds recorded.';
         else {
@@ -816,8 +710,6 @@
         renderHeatmap();
         updateStrategyAdvice();
     };
-    
-    // ---------- CHART.JS INTEGRATION ----------
     const renderChart = () => {
         if (state.currentChart) state.currentChart.destroy();
         const ctx = dom.mainCanvas.getContext('2d');
@@ -841,7 +733,6 @@
         config.options = { scales: { y: { min: 0, max: 100, grid: { color: '#2A3A52' } }, x: { grid: { color: '#2A3A52' } } }, onClick: (e, active) => { if(active.length) dom.chartFeedback.innerText = `Selected: ${active[0].raw}%`; setTimeout(()=> dom.chartFeedback.innerText='', 1500); } };
         state.currentChart = new Chart(ctx, config);
     };
-    
     const pushProbability = (value) => {
         const now = new Date();
         const label = now.toLocaleTimeString('en-GB', { hour12: false, minute:'2-digit', second:'2-digit' });
@@ -849,7 +740,6 @@
         if (state.probHistory.length > 40) state.probHistory.shift();
         renderChart();
     };
-    
     const refreshAll = () => {
         const now = new Date();
         const minuteFloat = now.getMinutes() + now.getSeconds() / 60;
@@ -869,13 +759,11 @@
             let futureHour = now.getHours();
             if (futureMin >= 60) { futureMin -= 60; futureHour = (futureHour + 1) % 24; }
             const prob = computeProbability(futureMin, futureHour);
-            const barHeight = Math.max(18, prob * 0.65);
+            const barHeight = Math.max(16, prob * 0.6);
             forecastHtml += `<div class="forecast-item"><div class="forecast-bar" style="height:${barHeight}px;"></div><div>+${i}</div><div>${prob}%</div></div>`;
         }
         dom.forecastContainer.innerHTML = forecastHtml;
     };
-    
-    // ---------- OUTCOME MANAGEMENT ----------
     const addOutcome = (color, multiplier = null) => {
         state.outcomes.push({ color, multiplier, timestamp: new Date().toISOString() });
         if (color === 'PINK') state.pinkEvents.push({ time: new Date(), multiplier: multiplier || 0 });
@@ -885,8 +773,6 @@
     };
     const undoLast = () => { if (state.outcomes.length) { state.outcomes.pop(); saveData(); updateHistoryUI(); refreshAll(); } };
     const resetOutcomes = () => { state.outcomes = []; state.pinkEvents = []; saveData(); updateHistoryUI(); refreshAll(); };
-    
-    // ---------- D3 COMPOUNDING CHART (MENU) ----------
     const renderD3MenuChart = () => {
         const container = document.getElementById('d3-menu-viz');
         if (!container) return;
@@ -894,51 +780,46 @@
         const start = 1000, mult = 1.20, rounds = 20;
         let data = [], val = start;
         for (let i = 0; i <= rounds; i++) { data.push({ round: i, balance: val }); val *= mult; }
-        const w = 340, h = 170, margin = { top: 16, right: 15, bottom: 22, left: 48 };
+        const w = 300, h = 150, margin = { top: 12, right: 10, bottom: 20, left: 40 };
         const svg = d3.select(container).append('svg').attr('width', w).attr('height', h).append('g').attr('transform', `translate(${margin.left},${margin.top})`);
         const x = d3.scaleLinear().domain([0, rounds]).range([0, w - margin.left - margin.right]);
         const y = d3.scaleLinear().domain([0, d3.max(data, d => d.balance)]).range([h - margin.top - margin.bottom, 0]);
         svg.append('path').datum(data).attr('fill', 'none').attr('stroke', '#E85D3A').attr('stroke-width', 2).attr('d', d3.line().x(d => x(d.round)).y(d => y(d.balance)).curve(d3.curveMonotoneX));
-        svg.selectAll('.dot').data(data).enter().append('circle').attr('cx', d => x(d.round)).attr('cy', d => y(d.balance)).attr('r', 2.5).attr('fill', '#3B7EA5');
+        svg.selectAll('.dot').data(data).enter().append('circle').attr('cx', d => x(d.round)).attr('cy', d => y(d.balance)).attr('r', 2).attr('fill', '#3B7EA5');
         svg.append('g').attr('transform', `translate(0,${h - margin.top - margin.bottom})`).call(d3.axisBottom(x).ticks(5));
         svg.append('g').call(d3.axisLeft(y).tickFormat(d => d.toFixed(0) + ' TZS'));
-        svg.append('text').attr('x', (w - margin.left - margin.right) / 2).attr('y', -4).attr('text-anchor', 'middle').style('font-size', '7px').style('fill', '#8A9BB0').text('Compounding projection: 1,000 TZS · 1.20x/round');
+        svg.append('text').attr('x', (w - margin.left - margin.right) / 2).attr('y', -4).attr('text-anchor', 'middle').style('font-size', '6px').style('fill', '#8A9BB0').text('Compounding: 1,000 TZS · 1.20x/round');
     };
     const attachMenuD3 = () => {
         if (!document.getElementById('d3-menu-viz')) {
             const div = document.createElement('div');
             div.id = 'd3-menu-viz';
-            div.style.marginTop = '16px';
-            div.style.padding = '12px';
+            div.style.marginTop = '12px';
+            div.style.padding = '10px';
             div.style.background = '#0F1725';
             div.style.border = '1px solid #2A3A52';
-            div.style.borderRadius = '16px';
-            div.innerHTML = '<div style="font-size:0.75rem; font-weight:700; margin-bottom:8px;">📈 Balance projection · 20 rounds</div>';
+            div.innerHTML = '<div style="font-size:0.7rem; font-weight:700; margin-bottom:6px;">Balance projection · 20 rounds</div>';
             document.getElementById('panelContent').appendChild(div);
         }
         renderD3MenuChart();
     };
-    
-    // ---------- MENU SYSTEM (well-designed components) ----------
     const showPanel = (title, html) => { dom.panelTitle.innerText = title; dom.panelContent.innerHTML = html; dom.menuPanel.classList.add('open'); dom.menuOverlay.style.display = 'block'; attachMenuD3(); };
     const hidePanel = () => { dom.menuPanel.classList.remove('open'); dom.menuOverlay.style.display = 'none'; };
     const buildMainMenu = () => {
         const html = `
-            <button class="menu-item" id="menuPattern">🧠 Pattern Intelligence</button>
-            <button class="menu-item" id="menuCompounding">📊 Compounding Table TZS</button>
-            <button class="menu-item" id="menuCashout">⚡ Double Bet & Hedge</button>
-            <button class="menu-item" id="menuTips">🎯 Full Strategy Guide</button>
-            <button class="menu-item" id="menuDisclaimer">⚖️ Legal & Disclaimer</button>
+            <button class="menu-item" id="menuPattern">Pattern Intelligence</button>
+            <button class="menu-item" id="menuCompounding">Compounding Table TZS</button>
+            <button class="menu-item" id="menuCashout">Double Bet and Hedge</button>
+            <button class="menu-item" id="menuTips">Full Strategy Guide</button>
+            <button class="menu-item" id="menuDisclaimer">Legal and Disclaimer</button>
         `;
-        showPanel('Pink Hunter · Strategy Core', html);
+        showPanel('Pink Hunter Strategy Core', html);
         document.getElementById('menuPattern')?.addEventListener('click', () => { hidePanel(); showPanel('Pattern Intelligence', `<div class="pattern-alert">${detectPatterns()}</div>`); });
-        document.getElementById('menuCompounding')?.addEventListener('click', () => { let rows='',b=1000; for(let i=0;i<20;i++){ rows+=`<tr><td class="text-center">${i+1}</td><td class="text-center">1.20x</td><td class="text-end">${b.toFixed(0)} TZS</td><td class="text-end">${(b*1.2).toFixed(0)} TZS</td>`; b*=1.2; } hidePanel(); showPanel('Compounding Table', `<table class="menu-table"><thead><tr><th>Round</th><th>Multiplier</th><th>Placed TZS</th><th>Cashed TZS</th></tr></thead><tbody>${rows}</tbody></table><div class="small mt-2" style="margin-top:12px;">Start 1,000 TZS, 1.20x each round</div>`); });
+        document.getElementById('menuCompounding')?.addEventListener('click', () => { let rows='',b=1000; for(let i=0;i<20;i++){ rows+=`<tr><td class="text-center">${i+1}</td><td class="text-center">1.20x</td><td class="text-end">${b.toFixed(0)} TZS</td><td class="text-end">${(b*1.2).toFixed(0)} TZS</td>`; b*=1.2; } hidePanel(); showPanel('Compounding Table', `<table class="menu-table"><thead><tr><th>Round</th><th>Multiplier</th><th>Placed TZS</th><th>Cashed TZS</th></tr></thead><tbody>${rows}</tbody></table><div class="small mt-2">Start 1,000 TZS, 1.20x each round</div>`); });
         document.getElementById('menuCashout')?.addEventListener('click', () => { hidePanel(); showPanel('Double Bet Strategy', `<div class="tip-card"><div class="tip-title">How to Hedge</div><div class="tip-desc">Auto cash-out first bet at 1.5x to cover total stake. Second bet manually cash out at 5x-10x. Example: 20 TZS on Bet A (1.5x → 30 TZS), 10 TZS on Bet B (5x → 50 TZS). Net profit: 20 TZS.</div></div><div class="tip-card"><div class="tip-title">When to use</div><div class="tip-desc">Ideal for deep blue streaks (6+ blues) and pink windows. Reduces emotional cash-out mistakes.</div></div>`); });
-        document.getElementById('menuTips')?.addEventListener('click', () => { hidePanel(); showPanel('Full Strategy Guide', `<div class="tips-grid"><div class="tip-card"><div class="tip-title">Rule of Three Blues</div><div class="tip-desc">After 3 consecutive blues, 75% chance of purple reset. Enter with 2x target.</div></div><div class="tip-card"><div class="tip-title">Deep Blue Pink Hunt</div><div class="tip-desc">6-9 blues in a row → pink due. Use double bet: cover at 2x, chase 10x.</div></div><div class="tip-card"><div class="tip-title">Instaloss Drain</div><div class="tip-desc">Multiple 1.00x-1.05x crashes → stop betting for 5-10 minutes.</div></div><div class="tip-card"><div class="tip-title">Purple Sandwich</div><div class="tip-desc">Pattern Purple-Blue-Purple → next round likely purple. Target 2.5x-3x.</div></div><div class="tip-card"><div class="tip-title">Hourly Pink Windows</div><div class="tip-desc">Community slots: :02-:05, :18-:22, :35-:38, :52-:57 + original windows.</div></div><div class="tip-card"><div class="tip-title">10x Stack in 60 Mins</div><div class="tip-desc">3-step ladder: double at 2x, then 3x on purple streaks, final pink hunt with double bet.</div></div></div>`); });
+        document.getElementById('menuTips')?.addEventListener('click', () => { hidePanel(); showPanel('Full Strategy Guide', `<div class="tips-grid"><div class="tip-card"><div class="tip-title">Rule of Three Blues</div><div class="tip-desc">After 3 consecutive blues, 75 percent chance of purple reset. Enter with 2x target.</div></div><div class="tip-card"><div class="tip-title">Deep Blue Pink Hunt</div><div class="tip-desc">6-9 blues in a row → pink due. Use double bet: cover at 2x, chase 10x.</div></div><div class="tip-card"><div class="tip-title">Instaloss Drain</div><div class="tip-desc">Multiple 1.00x-1.05x crashes → stop betting for 5-10 minutes.</div></div><div class="tip-card"><div class="tip-title">Purple Sandwich</div><div class="tip-desc">Pattern Purple-Blue-Purple → next round likely purple. Target 2.5x-3x.</div></div><div class="tip-card"><div class="tip-title">Hourly Pink Windows</div><div class="tip-desc">Community slots: :02-:05, :18-:22, :35-:38, :52-:57 plus original windows.</div></div><div class="tip-card"><div class="tip-title">10x Stack in 60 Mins</div><div class="tip-desc">3-step ladder: double at 2x, then 3x on purple streaks, final pink hunt with double bet.</div></div></div>`); });
         document.getElementById('menuDisclaimer')?.addEventListener('click', () => { hidePanel(); showPanel('Disclaimer', `<div class="pattern-alert">Informational use only. Past patterns do not guarantee future results. Created by RMS Group. Gamble responsibly.</div>`); });
     };
-    
-    // ---------- DRAGGABLE MENU & KEYBOARD ----------
     const initDraggable = () => {
         let isDragging = false, startX, startY, startLeft, startTop;
         const btn = dom.menuBtn;
@@ -948,7 +829,6 @@
         btn.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
         btn.addEventListener('touchstart', onStart); window.addEventListener('touchmove', onMove); window.addEventListener('touchend', onEnd);
     };
-    
     const initKeyboard = () => {
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -960,8 +840,6 @@
             else if ((e.ctrlKey || e.metaKey) && key === 'z') { undoLast(); e.preventDefault(); }
         });
     };
-    
-    // ---------- BOOTSTRAP ----------
     window.addEventListener('DOMContentLoaded', () => {
         dom.loader = document.getElementById('loaderOverlay');
         dom.mainApp = document.getElementById('mainApp');
@@ -992,7 +870,6 @@
         dom.heatmapContainer = document.getElementById('heatmapContainer');
         dom.chartFeedback = document.getElementById('chartFeedback');
         dom.strategyAdvice = document.getElementById('strategyAdvice');
-        
         PINK_WINDOWS.forEach(([s,e]) => { let tag = document.createElement('span'); tag.className = 'window-tag'; tag.innerText = `${s}-${e} min`; dom.windowsContainer.appendChild(tag); });
         loadData(); updateHistoryUI();
         dom.addBlue.onclick = () => addOutcome('BLUE');
@@ -1001,12 +878,11 @@
         dom.resetBtn.onclick = resetOutcomes;
         dom.closePanelBtn.onclick = hidePanel;
         dom.menuOverlay.onclick = hidePanel;
-        
         document.querySelectorAll('.chart-opt').forEach(opt => opt.addEventListener('click', () => {
             document.querySelectorAll('.chart-opt').forEach(o => o.classList.remove('active'));
             opt.classList.add('active'); state.chartStyle = opt.dataset.style; renderChart();
         }));
-        const circumference = 2 * Math.PI * 85;
+        const circumference = 2 * Math.PI * 80;
         dom.gaugeCircleFill.style.strokeDasharray = circumference;
         dom.gaugeCircleFill.style.strokeDashoffset = circumference;
         refreshAll(); state.refreshInterval = setInterval(refreshAll, 900);
@@ -1023,4 +899,4 @@
 })();
 </script>
 </body>
-        </html>
+</html>
