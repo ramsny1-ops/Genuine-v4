@@ -3,1290 +3,1024 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Pink Hunter | Amazon-Inspired Aviator Dashboard</title>
+    <title>Pink Hunter | RMS Group Intelligence Core</title>
+    <!-- Chart.js + D3.js + Particles.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Font Awesome for footer icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Amazon-inspired light theme with zero border-radius on elements that have borders */
-        @layer base, components, utilities;
-        
-        @layer base {
-            :root {
-                --amazon-orange: #ff9900;
-                --amazon-dark: #232f3e;
-                --amazon-light-bg: #f3f3f3;
-                --amazon-card-border: #ddd;
-                --amazon-text-primary: #111;
-                --amazon-text-secondary: #555;
-                --amazon-blue-link: #0066c0;
-                --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-                --shadow-hover: 0 2px 5px rgba(0,0,0,0.1);
-            }
-            
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                background: #eaecee;
-                font-family: 'Amazon Ember', 'Segoe UI', Arial, sans-serif;
-                padding: 20px;
-                padding-bottom: 80px;
-                color: var(--amazon-text-primary);
-            }
-            
-            /* No border-radius on any bordered element */
-            .cntnr_9f3a2b1c {
-                max-width: 1400px;
-                margin: 0 auto;
-            }
+        /* ------------------------------------------------------------
+           ADVANCED CSS – CUSTOM PROPERTIES, LAYERED DESIGN, MEDIA QUERIES
+           FIXED GAUGE (TEXT NOT ROTATED), FULLY RESPONSIVE, DARK THEME
+           RMS GROUP PROFESSIONAL FOOTER – STICKS TO BOTTOM
+        ------------------------------------------------------------ */
+        :root {
+            --bg-deep: #0A0E17;
+            --bg-card: #131C2C;
+            --bg-elevated: #0F1725;
+            --border-subtle: #2A3A52;
+            --text-primary: #F0F3FA;
+            --text-secondary: #8A9BB0;
+            --accent-primary: #E85D3A;
+            --accent-secondary: #00d4ff;
+            --shadow-md: 0 8px 20px rgba(0,0,0,0.3);
+            --transition-smooth: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        
-        @layer components {
-            /* Loader - simple 2 second fade */
-            .loader-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: #ffffff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-                transition: opacity 0.3s ease;
-            }
-            .loader-spinner {
-                width: 48px;
-                height: 48px;
-                border: 3px solid #eaecee;
-                border-top: 3px solid var(--amazon-orange);
-                animation: spin 0.8s linear infinite;
-            }
-            @keyframes spin { 100% { transform: rotate(360deg); } }
-            
-            /* Floating button - Amazon orange */
-            .flt_btn_2d8a7f3e {
-                position: fixed;
-                bottom: 24px;
-                right: 24px;
-                width: 52px;
-                height: 52px;
-                background: var(--amazon-orange);
-                box-shadow: var(--shadow-sm);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: grab;
-                z-index: 1000;
-                touch-action: none;
-                user-select: none;
-                transition: all 0.15s;
-            }
-            .flt_btn_2d8a7f3e:active { cursor: grabbing; transform: scale(0.96); }
-            .flt_btn_2d8a7f3e span {
-                display: block;
-                width: 20px;
-                height: 2px;
-                background: white;
-                margin: 4px 0;
-            }
-            
-            .ovrly_4c9e2b7a {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 1001;
-                display: none;
-            }
-            
-            .pnl_5f1d3c8e {
-                position: fixed;
-                bottom: 96px;
-                right: 20px;
-                width: 420px;
-                max-width: calc(100vw - 40px);
-                background: white;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 1002;
-                display: none;
-                flex-direction: column;
-                overflow: hidden;
-                border: 1px solid var(--amazon-card-border);
-            }
-            .pnl_5f1d3c8e.opn_9a2b4c7d { display: flex; }
-            
-            .pnl_hdr_6e8f2a1c {
-                padding: 16px 20px;
-                background: #f7f7f7;
-                font-weight: 600;
-                font-size: 1rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid #e7e7e7;
-            }
-            .pnl_hdr_6e8f2a1c button {
-                background: none;
-                border: none;
-                font-size: 1.2rem;
-                cursor: pointer;
-                color: var(--amazon-text-secondary);
-                font-weight: bold;
-            }
-            .pnl_cntnt_3d7b2e9f {
-                padding: 20px;
-                max-height: 70vh;
-                overflow-y: auto;
-                font-size: 0.85rem;
-            }
-            
-            .menu-item {
-                display: block;
-                width: 100%;
-                padding: 12px 16px;
-                margin-bottom: 8px;
-                text-align: left;
-                background: #f9f9f9;
-                color: var(--amazon-text-primary);
-                font-weight: 500;
-                border: 1px solid #e0e0e0;
-                cursor: pointer;
-                transition: all 0.1s;
-                font-size: 0.85rem;
-            }
-            .menu-item:hover {
-                background: var(--amazon-orange);
-                color: white;
-                border-color: var(--amazon-orange);
-                transform: translateX(3px);
-            }
-            
-            /* D3 chart inside menu */
-            .d3-menu-viz {
-                background: #fafafa;
-                border: 1px solid #e0e0e0;
-                padding: 14px;
-                margin-top: 20px;
-            }
-            .viz-title {
-                font-size: 0.75rem;
-                font-weight: 600;
-                margin-bottom: 12px;
-                text-align: center;
-                color: var(--amazon-text-secondary);
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            
-            .tips-highlight {
-                background: #fef5e8;
-                border-left: 4px solid var(--amazon-orange);
-                padding: 12px;
-                margin: 12px 0;
-            }
-            
-            /* Dashboard grid - Amazon product card style */
-            .dash_grid_2f4a8c1e {
-                display: grid;
-                grid-template-columns: 1fr 1.2fr;
-                gap: 24px;
-                margin-top: 20px;
-            }
-            
-            .card_7b3e9d2a {
-                background: white;
-                box-shadow: var(--shadow-sm);
-                border: 1px solid var(--amazon-card-border);
-                transition: all 0.15s;
-            }
-            .card_7b3e9d2a:hover {
-                box-shadow: var(--shadow-hover);
-                border-color: #ccc;
-            }
-            
-            .card_hdr_4c8f2b6e {
-                padding: 16px 20px 8px;
-                border-bottom: 1px solid #f0f0f0;
-            }
-            .card_ttl_1a9d3f7c {
-                font-weight: 700;
-                font-size: 1.2rem;
-                color: var(--amazon-text-primary);
-            }
-            .card_sub_5e2b8a4d {
-                font-size: 0.7rem;
-                color: var(--amazon-text-secondary);
-                margin-top: 4px;
-            }
-            .card_cntnt_6f3a2c8e {
-                padding: 18px 20px 20px;
-            }
-            
-            .gauge_9c7d1f4b { display: flex; justify-content: center; margin: 8px 0; }
-            
-            .alert_2e8f7a3c {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 10px 16px;
-                font-size: 0.75rem;
-                font-weight: 500;
-                margin-top: 14px;
-                background: #f7f7f7;
-                border-left: 4px solid;
-            }
-            .alert_low_4d9c2a7e { border-left-color: #c25a3a; background: #fff5f0; color: #c25a3a; }
-            .alert_high_8b2f4c6a { border-left-color: var(--amazon-orange); background: #fff8ed; color: #b45f06; }
-            .alert_neutral_3e7a1c9d { border-left-color: #888; background: #fafafa; color: #555; }
-            
-            .timeline_6a2f4c8e {
-                background: #f9f9f9;
-                padding: 12px 16px;
-                margin-top: 18px;
-                border: 1px solid #eee;
-            }
-            .windows_row_5d9f3b1c { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-            .window_tag_7a2e4c9d {
-                font-family: monospace;
-                font-size: 0.7rem;
-                background: #f0f0f0;
-                padding: 5px 12px;
-                color: #0066c0;
-                border: 1px solid #ddd;
-                font-weight: 500;
-            }
-            .chart_switcher_3b8a6e2c {
-                background: #f5f5f5;
-                padding: 4px;
-                display: flex;
-                margin-bottom: 20px;
-                border: 1px solid #e0e0e0;
-            }
-            .switch_opt_9f4d2a7c {
-                flex: 1;
-                text-align: center;
-                padding: 8px 4px;
-                font-size: 0.7rem;
-                font-weight: 600;
-                cursor: pointer;
-                color: var(--amazon-text-secondary);
-                background: transparent;
-                transition: all 0.1s;
-            }
-            .switch_opt_9f4d2a7c.actv_1e3b5c7d {
-                background: var(--amazon-orange);
-                color: white;
-            }
-            .chart_canvas_6d2a4f8e { height: 300px; width: 100%; margin: 6px 0; }
-            .outcome_bar_7c3e9a2b { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 12px; }
-            .btn_4f8a2c9e {
-                border: 1px solid #ccc;
-                padding: 8px 18px;
-                font-weight: 600;
-                font-size: 0.75rem;
-                cursor: pointer;
-                background: #f0f0f0;
-                color: #111;
-                transition: all 0.1s;
-            }
-            .btn_4f8a2c9e:hover { background: var(--amazon-orange); border-color: var(--amazon-orange); color: white; }
-            .history_log_2a7d4c9e {
-                background: #fefefe;
-                padding: 12px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-                max-height: 110px;
-                overflow-y: auto;
-                font-family: monospace;
-                font-size: 0.7rem;
-                border: 1px solid #eee;
-            }
-            .history_tag_6b3e8a2d {
-                background: #f1f1f1;
-                padding: 5px 12px;
-                border: 1px solid #ddd;
-                font-weight: 500;
-            }
-            .pattern_alert_5c2f8a3e {
-                background: #fef5e8;
-                padding: 12px 16px;
-                font-size: 0.75rem;
-                margin-top: 14px;
-                border-left: 4px solid #ff9900;
-                font-weight: 500;
-            }
-            .forecast_9b2e4c7a { margin-top: 22px; padding-top: 14px; border-top: 1px solid #e0e0e0; }
-            .forecast_bars_1a3f5c8e { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 6px; }
-            .forecast_bar_7d2e4f9c { flex: 0 0 40px; text-align: center; font-size: 0.65rem; }
-            .forecast_bar_7d2e4f9c .bar_inner_2c6a8f4e {
-                background: var(--amazon-orange);
-                width: 24px;
-                margin: 0 auto;
-                transition: height 0.2s;
-            }
-            
-            footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 16px;
-                margin-top: 48px;
-                padding-top: 20px;
-                border-top: 1px solid #e0e0e0;
-                font-size: 0.65rem;
-                color: var(--amazon-text-secondary);
-            }
-            footer a { color: var(--amazon-blue-link); text-decoration: none; }
-            
-            @media (max-width: 800px) {
-                .dash_grid_2f4a8c1e { grid-template-columns: 1fr; }
-                body { padding: 16px; }
-                footer { flex-direction: column; text-align: center; }
-            }
-            .table_glass { background: white; border: 1px solid #e0e0e0; }
-            .input-group-sm input { font-size: 0.75rem; border: 1px solid #ccc; padding: 6px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        @layer utilities {
-            .text-center { text-align: center; }
-            .mt-2 { margin-top: 8px; }
-            .small { font-size: 0.7rem; }
+        body {
+            background: var(--bg-deep);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .app-container {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+            padding-bottom: 60px;
+            position: relative;
+            z-index: 2;
+        }
+        /* Loader */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            transition: opacity 0.4s ease;
+        }
+        .circular-loader {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--accent-primary), #FFFFFF, var(--accent-primary));
+            animation: spinLoader 0.8s linear infinite;
+            mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+        }
+        @keyframes spinLoader { 100% { transform: rotate(360deg); } }
+        /* Circular Hamburger Menu – perfect circle, well designed */
+        .circular-menu-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 64px;
+            height: 64px;
+            background: #1F2A3E;
+            border: 1px solid var(--border-subtle);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .circular-menu-btn:hover { background: var(--accent-primary); border-color: var(--accent-primary); transform: scale(1.02); }
+        .circular-menu-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: white;
+            margin: 4px 0;
+            border-radius: 2px;
+        }
+        .circular-menu-btn:active { transform: scale(0.96); }
+        .menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1001;
+            display: none;
+        }
+        .menu-panel {
+            position: fixed;
+            bottom: 112px;
+            right: 32px;
+            width: 500px;
+            max-width: calc(100vw - 64px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            z-index: 1002;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.5);
+        }
+        .menu-panel.open { display: flex; }
+        .menu-header {
+            padding: 18px 24px;
+            background: var(--bg-elevated);
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--accent-secondary);
+        }
+        .menu-header button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: 0.2s;
+        }
+        .menu-header button:hover { color: var(--accent-primary); transform: scale(1.1); }
+        .menu-content {
+            padding: 20px;
+            max-height: 65vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        /* Well-designed menu items */
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        .menu-item:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: translateX(6px);
+            color: white;
+        }
+        /* Table styling inside menu */
+        .menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .menu-table th, .menu-table td {
+            border: 1px solid var(--border-subtle);
+            padding: 10px 12px;
+            text-align: left;
+        }
+        .menu-table th { background: #1E2A3A; color: var(--accent-secondary); font-weight: 700; }
+        .tips-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .tip-card {
+            background: var(--bg-elevated);
+            border-left: 4px solid var(--accent-primary);
+            padding: 14px 18px;
+            border-radius: 14px;
+            transition: 0.2s;
+        }
+        .tip-card:hover { transform: translateX(4px); background: #1a2538; }
+        .tip-title { font-weight: 800; color: var(--accent-primary); margin-bottom: 8px; font-size: 0.9rem; }
+        .tip-desc { color: #b8c7e7; line-height: 1.45; font-size: 0.8rem; }
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            transition: box-shadow 0.2s ease;
+            overflow: hidden;
+        }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card-header {
+            padding: 20px 24px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .card-title { font-weight: 700; font-size: 1.3rem; color: white; letter-spacing: -0.3px; }
+        .card-sub { font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px; }
+        .card-content { padding: 20px 24px 24px; }
+        /* FIXED GAUGE: circle rotated, text not */
+        .gauge-container {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+            position: relative;
+        }
+        .gauge-svg {
+            width: 180px;
+            height: 180px;
+        }
+        .gauge-circle-bg {
+            fill: none;
+            stroke: var(--border-subtle);
+            stroke-width: 12;
+        }
+        .gauge-circle-fill {
+            fill: none;
+            stroke: var(--accent-primary);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 534;
+            stroke-dashoffset: 534;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+        .gauge-text {
+            font-size: 34px;
+            font-weight: 800;
+            fill: white;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .probability-meta {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+        .alert-badge {
+            background: #1E2A3A;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+        .timeline-card {
+            background: var(--bg-elevated);
+            padding: 16px;
+            margin-top: 20px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+        }
+        .windows-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .window-tag {
+            font-family: monospace;
+            font-size: 0.7rem;
+            background: #1E2A3A;
+            padding: 5px 14px;
+            color: var(--accent-primary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .outcome-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0 16px; }
+        .btn-outcome {
+            border: 1px solid var(--border-subtle);
+            padding: 9px 22px;
+            font-weight: 600;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            font-size: 0.8rem;
+            border-radius: 40px;
+        }
+        .btn-outcome:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            transform: scale(0.97);
+        }
+        .history-log {
+            background: var(--bg-elevated);
+            padding: 12px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .history-badge {
+            background: #1E2A3A;
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid var(--border-subtle);
+            border-radius: 30px;
+        }
+        .pattern-alert {
+            background: #1E2A3A;
+            padding: 14px;
+            margin-top: 16px;
+            font-size: 0.75rem;
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 16px;
+        }
+        .heatmap-row { display: flex; gap: 5px; flex-wrap: wrap; margin: 12px 0; }
+        .heatmap-cell {
+            width: 30px;
+            height: 30px;
+            background: #1E2A3A;
+            border-radius: 8px;
+            transition: transform 0.1s;
+        }
+        .heatmap-cell[data-color="BLUE"] { background: #3B7EA5; }
+        .heatmap-cell[data-color="PURPLE"] { background: #8B5F8C; }
+        .heatmap-cell[data-color="PINK"] { background: #E2728A; }
+        .chart-switch-group {
+            background: var(--bg-elevated);
+            padding: 5px;
+            display: flex;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 60px;
+        }
+        .chart-opt {
+            flex: 1;
+            text-align: center;
+            padding: 7px 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            color: var(--text-secondary);
+            border-radius: 40px;
+        }
+        .chart-opt.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+        .canvas-chart { height: 280px; width: 100%; }
+        .forecast-bars { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 6px; }
+        .forecast-item {
+            flex: 0 0 42px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+        .forecast-bar {
+            background: var(--accent-primary);
+            width: 26px;
+            margin: 0 auto;
+            transition: height 0.2s;
+            border-radius: 4px;
+        }
+        .shortcuts-hint {
+            background: var(--bg-elevated);
+            padding: 8px 14px;
+            font-size: 0.65rem;
+            display: inline-block;
+            margin-top: 14px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 40px;
+            color: var(--text-secondary);
+        }
+        /* RMS GROUP PROFESSIONAL FOOTER – fully responsive, sticky bottom */
+        .rms-footer {
+            background: #0F1117;
+            border-top: 1px solid var(--border-subtle);
+            padding: 48px 0 24px;
+            margin-top: auto;
+            width: 100%;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 32px;
+        }
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+        }
+        .footer-section h2 {
+            font-size: 1.4rem;
+            color: var(--accent-secondary);
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+        .footer-section h3 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: #ddd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .footer-section p, .footer-section a {
+            color: #9aa4bf;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover { color: var(--accent-secondary); }
+        .footer-section i {
+            color: var(--accent-secondary);
+            width: 22px;
+            font-size: 1rem;
+        }
+        .tagline {
+            font-style: italic;
+            margin-top: 8px;
+            color: var(--accent-secondary) !important;
+        }
+        .footer-bottom {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.7rem;
+            color: #6c7a8e;
+        }
+        /* MEDIA QUERIES – fully responsive */
+        @media (max-width: 960px) {
+            .dashboard-grid { grid-template-columns: 1fr; gap: 24px; }
+            .app-container { padding: 20px; }
+            .gauge-svg { width: 150px; height: 150px; }
+            .gauge-text { font-size: 28px; }
+        }
+        @media (max-width: 640px) {
+            .menu-panel { right: 16px; bottom: 96px; width: calc(100vw - 32px); }
+            .circular-menu-btn { bottom: 20px; right: 20px; width: 56px; height: 56px; }
+            .footer-container { flex-direction: column; text-align: center; }
+            .footer-section a, .footer-section p { justify-content: center; }
+            .probability-meta { gap: 16px; flex-direction: column; align-items: center; }
+            .card-title { font-size: 1.1rem; }
+        }
+        @media (max-width: 480px) {
+            .outcome-buttons .btn-outcome { padding: 6px 14px; font-size: 0.7rem; }
+            .window-tag { font-size: 0.6rem; padding: 3px 10px; }
         }
     </style>
 </head>
 <body>
-<div id="loaderOverlay" class="loader-overlay"><div class="loader-spinner"></div></div>
-
-<div class="cntnr_9f3a2b1c" id="main_cntnt_4c8e2a7f" style="display: none;">
-    <div id="flt_btn_2d8a7f3e" class="flt_btn_2d8a7f3e"><div><span></span><span></span><span></span></div></div>
-    <div id="ovrly_4c9e2b7a" class="ovrly_4c9e2b7a"></div>
-    <div id="pnl_5f1d3c8e" class="pnl_5f1d3c8e">
-        <div class="pnl_hdr_6e8f2a1c"><span id="pnl_ttl_3a9f2c7e">Pink Hunter Menu</span><button id="cls_pnl_4b8e2c7a">&times;</button></div>
-        <div id="pnl_cntnt_3d7b2e9f" class="pnl_cntnt_3d7b2e9f"></div>
+<div id="particles-js"></div>
+<div id="loaderOverlay" class="loader-overlay"><div class="circular-loader"></div></div>
+<div class="app-container" id="mainApp" style="display: none;">
+    <!-- Circular Hamburger Menu -->
+    <div id="menuBtn" class="circular-menu-btn"><div><span></span><span></span><span></span></div></div>
+    <div id="menuOverlay" class="menu-overlay"></div>
+    <div id="menuPanel" class="menu-panel">
+        <div class="menu-header"><span id="panelTitle">Pink Hunter · Strategy Core</span><button id="closePanelBtn">✕</button></div>
+        <div id="panelContent" class="menu-content"></div>
     </div>
-
-    <div class="dash_grid_2f4a8c1e">
-        <div class="card_7b3e9d2a">
-            <div class="card_hdr_4c8f2b6e">
-                <div class="card_ttl_1a9d3f7c">Dynamic Pink Probability</div>
-                <div class="card_sub_5e2b8a4d">Real-time probability based on pink windows, pattern detection and outcome history</div>
+    <div class="dashboard-grid">
+        <!-- Left Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Probability Engine</div>
+                <div class="card-sub">Real‑time inference · pattern logic · market stability</div>
             </div>
-            <div class="card_cntnt_6f3a2c8e">
-                <div class="gauge_9c7d1f4b">
-                    <svg width="170" height="170" viewBox="0 0 200 200">
-                        <circle cx="100" cy="100" r="85" fill="none" stroke="#e0e0e0" stroke-width="12" />
-                        <circle id="gauge_fill_2e7a4c9d" cx="100" cy="100" r="85" fill="none" stroke="#ff9900" stroke-width="12" stroke-dasharray="534" stroke-dashoffset="534" stroke-linecap="round" />
-                        <text id="gauge_txt_8a3f2c6e" x="100" y="100" font-size="32" font-weight="700" fill="#111" text-anchor="middle" dominant-baseline="middle">0%</text>
+            <div class="card-content">
+                <div class="gauge-container">
+                    <svg width="180" height="180" viewBox="0 0 200 200" class="gauge-svg">
+                        <circle cx="100" cy="100" r="85" class="gauge-circle-bg" />
+                        <circle cx="100" cy="100" r="85" class="gauge-circle-fill" id="gaugeCircleFill" />
+                        <text x="100" y="100" class="gauge-text" id="gaugePercent">0%</text>
                     </svg>
                 </div>
-                <div id="alert_bdg_4c7a2f9e" class="alert_2e8f7a3c alert_neutral_3e7a1c9d">Probability: --%</div>
-                <div class="timeline_6a2f4c8e">
-                    <div style="font-weight:600;">Pink guarantee windows every hour</div>
-                    <div class="windows_row_5d9f3b1c" id="win_list_7a2c4e9f"></div>
-                    <div class="card_sub_5e2b8a4d" style="margin-top:6px;">Biggest: 57-59 and 01-03 minutes</div>
-                    <div id="live_min_6b2e4f8a" style="margin-top:8px; font-family:monospace;">Now: -- min</div>
+                <div class="probability-meta">
+                    <span>Pink window: <span id="windowStatus">No</span></span>
+                    <span>Peak slot: <span id="slotStatus">Standard</span></span>
+                    <span>Market: <span id="marketStatus">Loading</span></span>
                 </div>
-                <hr style="margin: 18px 0; border-color: #e0e0e0;">
-                <div style="font-weight:600;">Outcome history</div>
-                <div class="outcome_bar_7c3e9a2b">
-                    <button class="btn_4f8a2c9e" id="add_blue_2c7a4d9f">+ Blue</button>
-                    <button class="btn_4f8a2c9e" id="add_purple_8f3a2c7e">+ Purple</button>
-                    <button class="btn_4f8a2c9e" id="add_pink_4d9c2a7e">+ Pink</button>
-                    <button class="btn_4f8a2c9e" id="reset_outs_1a7c4e9d">Reset</button>
+                <div id="alertMessage" class="alert-badge">Probability: 0% · awaiting data</div>
+                <div class="timeline-card">
+                    <div style="font-weight: 700;">Pink guarantee windows (each hour)</div>
+                    <div class="windows-row" id="windowsContainer"></div>
+                    <div id="liveMinute" style="margin-top: 8px; font-family: monospace;">Now: -- min</div>
                 </div>
-                <div id="hist_log_5d2a7c4e" class="history_log_2a7d4c9e">No rounds recorded.</div>
-                <div id="pat_alert_8e2c4a7d" class="pattern_alert_5c2f8a3e">Add outcomes to activate pattern detection</div>
-                <div class="forecast_9b2e4c7a">
-                    <div style="font-weight:600; margin-bottom:8px;">Probability forecast next 15 min</div>
-                    <div id="fcst_bars_4a7e2c9d" class="forecast_bars_1a3f5c8e"></div>
-                    <div class="card_sub_5e2b8a4d">Based on current minute and no new outcomes</div>
+                <div style="font-weight: 700; margin-top: 20px;">Outcome ingestion</div>
+                <div class="outcome-buttons">
+                    <button class="btn-outcome" id="addBlueBtn">Blue</button>
+                    <button class="btn-outcome" id="addPurpleBtn">Purple</button>
+                    <button class="btn-outcome" id="addPinkBtn">Pink</button>
+                    <button class="btn-outcome" id="resetOutcomesBtn">Reset</button>
+                </div>
+                <div id="historyLog" class="history-log">No rounds recorded.</div>
+                <div style="font-weight: 700; margin-top: 16px;">Pattern heatmap · last 30 rounds</div>
+                <div id="heatmapContainer" class="heatmap-row"></div>
+                <div id="patternAlert" class="pattern-alert">Awaiting outcome data for pattern detection</div>
+                <div class="shortcuts-hint">⌨️ Keyboard: B=Blue  P=Purple  K=Pink  R=Reset  Ctrl+Z=Undo</div>
+                <div style="margin-top: 20px;">
+                    <div style="font-weight: 700; margin-bottom: 8px;">Forecast · next 15 minutes</div>
+                    <div id="forecastContainer" class="forecast-bars"></div>
                 </div>
             </div>
         </div>
-
-        <div class="card_7b3e9d2a">
-            <div class="card_hdr_4c8f2b6e">
-                <div class="card_ttl_1a9d3f7c" id="chart_ttl_2a7c4e9d">Momentum Oscillator · Line Chart</div>
-                <div class="card_sub_5e2b8a4d" id="live_ts_6d2a4f8e">Real-time · click points for details</div>
+        <!-- Right Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title" id="chartTitle">Momentum Oscillator</div>
+                <div class="card-sub" id="liveTimestamp">Real‑time trend · interactive</div>
             </div>
-            <div class="card_cntnt_6f3a2c8e">
-                <div class="chart_switcher_3b8a6e2c">
-                    <div class="switch_opt_9f4d2a7c actv_1e3b5c7d" data-style="line">Line</div>
-                    <div class="switch_opt_9f4d2a7c" data-style="wave">Wave</div>
-                    <div class="switch_opt_9f4d2a7c" data-style="bar">Bar</div>
-                    <div class="switch_opt_9f4d2a7c" data-style="floatingBar">Floating Bar</div>
-                    <div class="switch_opt_9f4d2a7c" data-style="combo">Combo</div>
+            <div class="card-content">
+                <div class="chart-switch-group" id="chartSwitcher">
+                    <div class="chart-opt active" data-style="line">Line</div>
+                    <div class="chart-opt" data-style="wave">Wave</div>
+                    <div class="chart-opt" data-style="bar">Bar</div>
+                    <div class="chart-opt" data-style="combo">Combo</div>
                 </div>
-                <div class="chart_canvas_6d2a4f8e"><canvas id="dyn_canvas_3c7a2e8f" width="700" height="300" style="width:100%; height:100%;"></canvas></div>
-                <div id="click_fb_9f2c4a7e" style="text-align:center; font-size:0.65rem; margin-top:6px;"></div>
+                <div class="canvas-chart"><canvas id="mainChart" width="700" height="280"></canvas></div>
+                <div id="chartFeedback" style="margin-top: 8px; font-size:0.7rem; text-align:center;"></div>
+                <div id="strategyAdvice" class="pattern-alert" style="margin-top: 16px;">Strategy advice will appear here based on recent outcomes.</div>
             </div>
         </div>
     </div>
-
-    <footer>
-        <div class="left">Created and maintained by <a href="mailto:ramsulley@gmail.com">ramsulley@gmail.com</a><br>Amazon-inspired design · No border-radius on borders</div>
-        <div class="right"><a href="https://github.com/ramsny1-ops" target="_blank">ramsny1-ops on GitHub</a> · ramsny<br><span id="curr_year_2a4c7e9f"></span></div>
-    </footer>
 </div>
+
+<!-- RMS GROUP PROFESSIONAL FOOTER (fully responsive) -->
+<footer class="rms-footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h2>RMS Group</h2>
+            <p>Expert software engineering solutions across Tanzania and beyond.</p>
+            <p class="tagline">"We build the future of imagination"</p>
+        </div>
+        <div class="footer-section">
+            <h3>Contact</h3>
+            <a href="tel:+255697829707"><i class="fas fa-phone"></i> +255 697 829 707</a>
+            <a href="mailto:ramsny1@gmail.com"><i class="fas fa-envelope"></i> ramsny1@gmail.com</a>
+            <p><i class="fas fa-location-dot"></i> Tanzania</p>
+        </div>
+        <div class="footer-section">
+            <h3>Development</h3>
+            <a href="https://github.com/ramsny1-ops" target="_blank"><i class="fab fa-github"></i> ramsny1-ops</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>Created and Metallized by <strong>RMS Group</strong> | &copy; 2026 All Rights Reserved</p>
+    </div>
+</footer>
 
 <script>
 /**
- * Pink Hunter - Amazon Design Engineering Team Edition
- * @fileoverview Professional Aviator probability dashboard with real-time pattern detection,
- * D3 compounding chart inside menu, and Amazon-inspired light theme.
- * @author ramsny (ramsulley@gmail.com)
- * @version 17.0.0
- * @date 2026-04-12
+ * Pink Hunter – Ultimate Production Dashboard with RMS Group Footer
+ * @fileoverview Full Aviator strategy suite: updated pink windows (original + community),
+ * rule of three blues, deep blue pink hunt, instaloss detection, purple sandwich,
+ * double bet hedge, 10x stacking plan, market stability index, circular gauge fixed,
+ * fully responsive, hamburger menu with well-designed components.
+ * @author ramsny (ramsulley@gmail.com) / RMS Group
+ * @version 28.0.0
+ * @date 2026-04-14
+ * @license Educational & informational use only
  * 
- * HUMAN NOTES:
- * - I finally removed all border-radius from bordered elements because the user hates it.
- * - Added CSS layers (base, components, utilities) for better organization.
- * - The floating button is now Amazon orange #ff9900.
- * - Fixed an issue where the D3 chart was not re-rendering after outcomes changed.
- * - TODO: Consider adding a "Recommended Bet" button based on current probability (future enhancement).
- * - TODO: Explore caching of probability history to reduce localStorage writes.
- * 
- * This module handles:
- * 1. Dynamic probability based on pink windows (57-59, 0-3, etc.)
- * 2. Outcome tracking (Blue, Purple, Pink) with optional multiplier for pink.
- * 3. Pattern detection (2.1, 2.2, 2.3, advanced sequences).
- * 4. Chart.js momentum chart with multiple styles (line, wave, bar, combo).
- * 5. D3.js compounding growth projection inside the hamburger menu.
- * 6. Persistent storage via localStorage.
- * 7. 2-second loader before showing the main interface.
+ * @description This module implements:
+ * - Real-time probability based on pink windows (original + community hourly slots)
+ * - Pattern bonuses (rule of three blues, deep blue streak, purple sandwich, instaloss penalty, 1.09x trigger)
+ * - Dynamic strategy advice panel
+ * - Outcome tracking with localStorage persistence
+ * - Heatmap visualization of last 30 rounds
+ * - Chart.js momentum chart with multiple styles (line, wave, bar, combo)
+ * - D3 compounding chart inside hamburger menu
+ * - Keyboard shortcuts (B, P, K, R, Ctrl+Z)
+ * - Responsive layout with particles.js background
+ * - RMS Group professional footer that sticks to bottom
  */
 
 (function() {
-    // ---------- CONSTANTS ----------
-    // Fixed pink windows in minutes (these are non-negotiable)
-    const ___PINK_WINDOWS_FIXED = [[57,60], [0,3], [20,22], [29,31], [40,42], [45,47], [50,52]];
+    // ---------- UPDATED PINK WINDOWS (original + community) ----------
+    /**
+     * @constant {Array<Array<number>>} PINK_WINDOWS
+     * @description Combined list of guaranteed pink windows from original analysis and community hourly slots.
+     */
+    const PINK_WINDOWS = [
+        [57,60], [0,3], [20,22], [29,31], [40,42], [45,47], [50,52],  // original
+        [2,5], [8,9], [18,22], [28,30], [35,38], [41,42], [55,57]      // community reported
+    ].sort((a,b) => a[0]-b[0]);
     
-    // ---------- GLOBAL STATE ----------
-    let ___state = {
-        outcomes: [],        // each item: { color, multiplier, timestamp }
-        probHistory: [],     // stores { timestamp, value } for chart
+    /**
+     * @typedef {Object} Outcome
+     * @property {string} color - 'BLUE', 'PURPLE', or 'PINK'
+     * @property {number|null} multiplier - optional multiplier value for pink
+     * @property {string} timestamp - ISO timestamp
+     */
+    let state = {
+        outcomes: [],
+        probHistory: [],
         currentChart: null,
-        currentStyle: 'line',
-        updateInterval: null,
-        pinkEvents: []       // stores pink outcomes with time and multiplier for predictor
+        chartStyle: 'line',
+        pinkEvents: [],
+        refreshInterval: null
     };
     
-    const ___dom = {};
-    
+    const dom = {};
+
+    // ---------- PARTICLES BACKGROUND ----------
+    if (typeof particlesJS !== 'undefined') {
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 70, density: { enable: true, value_area: 800 } },
+                color: { value: '#E85D3A' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.25, random: true },
+                size: { value: 2, random: true },
+                line_linked: { enable: true, distance: 150, color: '#E85D3A', opacity: 0.15, width: 1 },
+                move: { enable: true, speed: 1.2, direction: 'none', random: true, straight: false, out_mode: 'out' }
+            },
+            interactivity: { detect_on: 'canvas', events: { onhover: { enable: true, mode: 'repulse' } } }
+        });
+    }
+
+    // ---------- PERSISTENCE LAYER ----------
     /**
-     * Load outcomes and pink events from localStorage.
-     * Called once at bootstrap. If no data exists, initializes empty arrays.
-     * @function ___loadOutcomes
-     * @returns {void}
-     * @date 2026-04-12
-     * TODO: Add versioning to localStorage keys to handle schema changes in the future.
+     * Loads saved outcomes and pink events from localStorage.
+     * @function loadData
      */
-    const ___loadOutcomes = () => {
-        const storedOutcomes = localStorage.getItem('pinkHunter_outcomes_v13');
-        if (storedOutcomes) {
-            try { 
-                ___state.outcomes = JSON.parse(storedOutcomes);
-                console.log('[LOAD] Successfully loaded outcomes from localStorage');
-            } catch(e) { 
-                console.warn('[LOAD] Failed to parse outcomes, starting fresh');
-            }
+    const loadData = () => {
+        const saved = localStorage.getItem('pinkHunter_v28');
+        if (saved) {
+            try { const p = JSON.parse(saved); state.outcomes = p.outcomes || []; state.pinkEvents = p.pinkEvents || []; } catch(e) {}
         }
-        const storedPink = localStorage.getItem('pinkHunter_pinkEvents_v10');
-        if (storedPink) {
-            try { 
-                ___state.pinkEvents = JSON.parse(storedPink);
-                console.log('[LOAD] Loaded pink events:', ___state.pinkEvents.length);
-            } catch(e) {}
-        }
+    };
+    /**
+     * Persists current outcomes and pink events to localStorage.
+     * @function saveData
+     */
+    const saveData = () => {
+        localStorage.setItem('pinkHunter_v28', JSON.stringify({ outcomes: state.outcomes, pinkEvents: state.pinkEvents }));
+    };
+
+    // ---------- CORE HELPERS ----------
+    const isInPinkZone = (minute) => PINK_WINDOWS.some(([s,e]) => minute >= s && minute < e);
+    const isPeakSlot = (hour) => (hour >= 5 && hour < 9) || (hour >= 15 && hour < 20) || (hour >= 23 || hour < 2);
+    
+    /**
+     * Evaluates market stability based on last 10 outcomes.
+     * @returns {string} Stability description
+     */
+    const getMarketStability = () => {
+        const last10 = state.outcomes.slice(-10).map(o => o.color);
+        const purpleCount = last10.filter(c => c === 'PURPLE').length;
+        const instalossCount = state.outcomes.slice(-10).filter(o => o.multiplier && o.multiplier <= 1.05).length;
+        if (purpleCount >= 6 && instalossCount === 0) return "Stable (Payout Phase)";
+        if (purpleCount >= 4) return "Moderate";
+        if (instalossCount > 0) return "Volatile / Drain Phase – Avoid betting";
+        return "Unstable – Wait for purple density";
     };
     
     /**
-     * Save outcomes and pink events to localStorage.
-     * Triggered after every outcome change to ensure data persistence.
-     * @function ___saveOutcomes
-     * @returns {void}
-     * @date 2026-04-12
-     * TODO: Consider debouncing this if too many writes happen in short succession.
+     * Computes pattern-based bonus for probability.
+     * Implements rule of three blues, deep blue streak, purple sandwich, instaloss penalty, pink trigger.
+     * @returns {number} Bonus value between -15 and +30
      */
-    const ___saveOutcomes = () => {
-        localStorage.setItem('pinkHunter_outcomes_v13', JSON.stringify(___state.outcomes));
-        localStorage.setItem('pinkHunter_pinkEvents_v10', JSON.stringify(___state.pinkEvents));
+    const getAdvancedPatternBonus = () => {
+        const colors = state.outcomes.map(o => o.color);
+        if (colors.length < 3) return 0;
+        let bonus = 0;
+        const last3 = colors.slice(-3);
+        if (last3.length === 3 && last3.every(c => c === 'BLUE')) bonus += 12;
+        let consBlue = 0;
+        for (let i=colors.length-1; i>=0 && colors[i]==='BLUE'; i--) consBlue++;
+        if (consBlue >= 6) bonus += 15;
+        if (consBlue >= 9) bonus += 10;
+        if (colors.length >= 3 && colors[colors.length-3] === 'PURPLE' && colors[colors.length-2] === 'BLUE' && colors[colors.length-1] === 'PURPLE')
+            bonus += 8;
+        const lastOutcome = state.outcomes[state.outcomes.length-1];
+        if (lastOutcome && lastOutcome.multiplier && lastOutcome.multiplier <= 1.05) bonus -= 20;
+        if (lastOutcome && lastOutcome.multiplier && lastOutcome.multiplier >= 1.09 && lastOutcome.multiplier <= 1.11) bonus += 18;
+        return Math.max(-15, Math.min(30, bonus));
     };
     
     /**
-     * Check if a given minute (0-60) falls inside any predefined pink window.
-     * Used by probability calculator to boost chances inside windows.
-     * @param {number} minute - Current minute with decimal (e.g., 57.3)
-     * @returns {boolean} True if inside any pink window
-     * @date 2026-04-12
-     */
-    const ___isInPinkZone = (minute) => ___PINK_WINDOWS_FIXED.some(([start, end]) => minute >= start && minute < end);
-    
-    /**
-     * Check if current hour falls within recommended playing slots.
-     * Adds a small bonus to probability during these hours.
+     * Main probability calculation engine.
+     * @param {number} minuteFloat - Current minute with decimal
      * @param {number} hour - Current hour (0-23)
-     * @returns {boolean}
-     * @date 2026-04-12
+     * @returns {number} Probability between 15 and 95
      */
-    const ___isInPlayingSlot = (hour) => (hour >= 5 && hour < 9) || (hour >= 15 && hour < 20) || (hour >= 23 || hour < 2);
-    
-    /**
-     * Core probability engine.
-     * Combines: base from distance to pink window, recent pink frequency, slot bonus, pattern bonus.
-     * Returns a value between 15 and 95 percent.
-     * @param {number} currentMinute - Current minute with decimal
-     * @param {number} currentHour - Current hour (0-23)
-     * @returns {number} Probability percentage
-     * @date 2026-04-12
-     * FIXED: Previously pattern bonus was not applied correctly; now it is.
-     */
-    const ___computeProbability = (currentMinute, currentHour) => {
-        const recentOutcomes = ___state.outcomes.slice(-10).map(o => o.color);
-        const pinkCount = recentOutcomes.filter(o => o === 'PINK').length;
+    const computeProbability = (minuteFloat, hour) => {
+        const recentColors = state.outcomes.slice(-10).map(o => o.color);
+        const pinkCount = recentColors.filter(c => c === 'PINK').length;
         const recentBonus = Math.min(20, pinkCount * 2);
-        
         let base = 20;
-        if (___isInPinkZone(currentMinute)) {
+        if (isInPinkZone(minuteFloat)) {
             base = 75;
-            if ((currentMinute >= 57 && currentMinute < 60) || (currentMinute >= 0 && currentMinute < 3)) base = 80;
+            if ((minuteFloat >= 57 && minuteFloat < 60) || (minuteFloat >= 0 && minuteFloat < 3)) base = 80;
         } else {
-            let minDistance = 60;
-            for (let [start, end] of ___PINK_WINDOWS_FIXED) {
-                let dist = (start - currentMinute + 60) % 60;
-                if (dist < minDistance) minDistance = dist;
-            }
-            const distanceFactor = Math.min(1.0, minDistance / 15);
+            let minDist = 60;
+            for (let [s] of PINK_WINDOWS) { let dist = (s - minuteFloat + 60) % 60; if (dist < minDist) minDist = dist; }
+            const distanceFactor = Math.min(1.0, minDist / 15);
             base = 60 * (1 - distanceFactor) + 20 * distanceFactor;
         }
-        
-        const slotBonus = ___isInPlayingSlot(currentHour) ? 5 : 0;
-        
-        let patternBonus = 0;
-        const colors = ___state.outcomes.map(o => o.color);
-        if (colors.length >= 3) {
-            const last3 = colors.slice(-3);
-            if (last3.join(',') === 'BLUE,BLUE,PURPLE') patternBonus = 8;
-            if (colors.length >= 4 && colors.slice(-4).join(',') === 'BLUE,PINK,BLUE,PINK') patternBonus = 12;
-            if (colors.slice(-8).filter(c => c === 'PURPLE').length >= 4) patternBonus = 10;
-        }
-        
-        let probability = base + recentBonus + slotBonus + patternBonus;
-        probability = Math.min(95, Math.max(15, Math.round(probability)));
-        return probability;
+        const slotBonus = isPeakSlot(hour) ? 5 : 0;
+        let patternBonus = getAdvancedPatternBonus();
+        const colorsSeq = state.outcomes.map(o => o.color);
+        if (colorsSeq.length >= 3 && colorsSeq.slice(-3).join(',') === 'BLUE,BLUE,PURPLE') patternBonus += 8;
+        if (colorsSeq.length >= 4 && colorsSeq.slice(-4).join(',') === 'BLUE,PINK,BLUE,PINK') patternBonus += 12;
+        if (colorsSeq.slice(-8).filter(c => c === 'PURPLE').length >= 4) patternBonus += 10;
+        let prob = base + recentBonus + slotBonus + patternBonus;
+        return Math.min(95, Math.max(15, Math.round(prob)));
     };
     
     /**
-     * Update the 15-minute forecast bars.
-     * Simulates probability for each future minute (1 to 15).
-     * @function ___updateForecast
-     * @returns {void}
-     * @date 2026-04-12
+     * Updates strategy advice panel based on recent patterns.
      */
-    const ___updateForecast = () => {
-        const now = new Date();
-        let currentMinute = now.getMinutes() + now.getSeconds() / 60;
-        let currentHour = now.getHours();
-        const container = ___dom.fcstBars;
-        if (!container) return;
-        
-        let html = '';
-        for (let i = 1; i <= 15; i++) {
-            let futureMinute = currentMinute + i;
-            let futureHour = currentHour;
-            if (futureMinute >= 60) {
-                futureMinute -= 60;
-                futureHour = (futureHour + 1) % 24;
-            }
-            const prob = ___computeProbability(futureMinute, futureHour);
-            const barHeight = Math.max(20, prob * 0.8);
-            const barColor = prob > 70 ? '#ff9900' : (prob < 40 ? '#c25a3a' : '#888888');
-            html += `<div class="forecast_bar_7d2e4f9c">
-                        <div class="bar_inner_2c6a8f4e" style="height: ${barHeight}px; background: ${barColor};"></div>
-                        <div>+${i}</div>
-                        <div style="font-size:0.6rem;">${prob}%</div>
-                     </div>`;
-        }
-        container.innerHTML = html;
+    const updateStrategyAdvice = () => {
+        const colors = state.outcomes.map(o => o.color);
+        const last5 = colors.slice(-5);
+        let consBlue = 0;
+        for (let i=colors.length-1; i>=0 && colors[i]==='BLUE'; i--) consBlue++;
+        const marketStable = getMarketStability();
+        let advice = "";
+        if (consBlue >= 6) advice = "Deep blue streak detected. High probability of a pink correction. Use double bet: auto cash-out at 2x to cover stake, let second bet ride to 10x+.";
+        else if (last5.filter(c=>c==='BLUE').length >= 3) advice = "Rule of Three Blues: Expect a purple reset in next 1-2 rounds. Conservative entry at 2x recommended.";
+        else if (last5.includes('PURPLE') && last5.includes('BLUE') && last5.lastIndexOf('PURPLE') > last5.lastIndexOf('BLUE')) advice = "Purple-Blue-Purple sandwich pattern. Next round likely purple. Target 2.5x.";
+        else if (marketStable.includes("Stable")) advice = "Market is in payout phase. Purple density high. Use aggressive compounding with auto cash-out at 1.5x.";
+        else if (marketStable.includes("Volatile")) advice = "Instaloss cluster detected. Stop betting for 5-10 minutes. Wait for purple recovery.";
+        else advice = "No strong pattern. Use conservative 1.2x-1.5x targets and observe history.";
+        dom.strategyAdvice.innerHTML = `Strategy Signal: ${advice}<br>Market status: ${marketStable}`;
+        dom.marketStatus.innerText = marketStable.split("–")[0];
     };
     
-    /**
-     * Update the circular gauge SVG based on probability value.
-     * @param {number} value - Probability percentage
-     * @function ___setGauge
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___setGauge = (value) => {
+    // ---------- UI UPDATES (gauge, history, heatmap) ----------
+    const updateGauge = (value) => {
         const circumference = 2 * Math.PI * 85;
         let offset = circumference - (value / 100) * circumference;
-        ___dom.gaugeFill.style.strokeDashoffset = offset;
-        ___dom.gaugeText.textContent = value + '%';
-        const strokeColor = value < 30 ? '#c25a3a' : (value > 70 ? '#ff9900' : '#888888');
-        ___dom.gaugeFill.setAttribute('stroke', strokeColor);
+        dom.gaugeCircleFill.style.strokeDashoffset = offset;
+        dom.gaugePercent.textContent = value + '%';
+        dom.gaugeCircleFill.setAttribute('stroke', value < 30 ? '#E2728A' : '#E85D3A');
     };
     
-    /**
-     * Update alert badge based on probability threshold.
-     * @param {number} prob - Current probability
-     * @function ___updateAlert
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___updateAlert = (prob) => {
-        let text, className;
-        if (prob < 50) {
-            text = `Caution: ${prob}% – bet small stake, gamble with care.`;
-            className = 'alert_low_4d9c2a7e';
-        } else if (prob >= 70) {
-            text = `High confidence: ${prob}% – increase targets.`;
-            className = 'alert_high_8b2f4c6a';
-        } else {
-            text = `Moderate chance: ${prob}% – normal stakes advised.`;
-            className = 'alert_neutral_3e7a1c9d';
-        }
-        ___dom.alertBadge.innerHTML = text;
-        ___dom.alertBadge.className = `alert_2e8f7a3c ${className}`;
+    const updateStatus = (now) => {
+        const minuteFloat = now.getMinutes() + now.getSeconds() / 60;
+        dom.windowStatus.innerText = isInPinkZone(minuteFloat) ? "Yes" : "No";
+        dom.slotStatus.innerText = isPeakSlot(now.getHours()) ? "Peak hours" : "Standard";
+        dom.liveMinute.innerText = `Now: ${minuteFloat.toFixed(1)} min`;
     };
     
-    /**
-     * Render the list of pink windows in the UI.
-     * @function ___populateWindowsList
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___populateWindowsList = () => {
-        const container = ___dom.winList;
-        container.innerHTML = '';
-        ___PINK_WINDOWS_FIXED.forEach(([start, end]) => {
-            const tag = document.createElement('span');
-            tag.className = 'window_tag_7a2e4c9d';
-            tag.innerText = `${start}-${end} min`;
-            container.appendChild(tag);
-        });
-    };
-    
-    /**
-     * Detect advanced pattern sequences from the outcome history.
-     * Looks for Purple-Blue-Purple-Blue-Purple, blue-pink repeats, purple clusters.
-     * @returns {string} Alert string or empty string
-     * @date 2026-04-12
-     */
-    const ___detectAdvancedPatterns = () => {
-        const colors = ___state.outcomes.map(o => o.color);
-        if (colors.length < 4) return "";
+    const detectPatterns = () => {
+        const colors = state.outcomes.map(o => o.color);
+        if (colors.length < 2) return "Insufficient data. Add outcomes to enable pattern detection.";
         const alerts = [];
-        const last5 = colors.slice(-5);
-        if (last5.length >= 5 && last5[0] === 'PURPLE' && last5[1] === 'BLUE' && last5[2] === 'PURPLE' && last5[3] === 'BLUE' && last5[4] === 'PURPLE') {
-            alerts.push("Purple Blue Purple Blue Purple pattern active – high continuation");
-        }
-        if (colors.length >= 6 && colors.slice(-6).join(',') === 'BLUE,BLUE,PURPLE,BLUE,BLUE,PURPLE') {
-            alerts.push("2 blues then 2 purples then blue then 2 purple – watch payout");
-        }
-        if (colors.length >= 4 && colors.slice(-4).join(',') === 'BLUE,PINK,BLUE,PINK') {
-            alerts.push("Blue Pink Blue Pink pattern – another pink soon");
-        }
-        if (colors.slice(-8).filter(c => c === 'PURPLE').length >= 4) {
-            alerts.push("Purple cluster – jackpot possible above 50x");
-        }
-        return alerts.join(" | ");
-    };
-    
-    /**
-     * Main pattern detection combining basic patterns (2.1,2.2,2.3) and advanced sequences.
-     * @returns {string} Human-readable pattern alerts
-     * @date 2026-04-12
-     */
-    const ___detectPatterns = () => {
-        const colors = ___state.outcomes.map(o => o.color);
-        if (colors.length < 2) return "Add outcomes to activate pattern rules.";
-        const alerts = [];
-        
         const last4 = colors.slice(-4);
-        if (last4.length === 4 && last4.filter(c => c === 'BLUE').length >= 2 && last4[last4.length-1] === 'BLUE' && last4[last4.length-2] === 'BLUE') {
-            alerts.push("Pattern 2.1: Two consecutive blues after mix → expect PINK next.");
-        }
-        
-        let consecutiveBlues = 0;
-        for (let i = colors.length-1; i >= 0 && colors[i] === 'BLUE'; i--) consecutiveBlues++;
-        if (consecutiveBlues >= 6 && consecutiveBlues <= 8) {
-            alerts.push(`Pattern 2.2: ${consecutiveBlues} blues in a row → expect big pink 20x+.`);
-        }
-        
-        let consecutivePurples = 0;
-        for (let i = colors.length-1; i >= 0 && colors[i] === 'PURPLE'; i--) consecutivePurples++;
-        if (consecutivePurples >= 5) {
-            alerts.push(`Pattern 2.3: ${consecutivePurples} purples → anticipate pink above 20x.`);
-        }
-        
-        const baseAlerts = alerts.join(" | ");
-        const advancedAlerts = ___detectAdvancedPatterns();
-        return baseAlerts && advancedAlerts ? baseAlerts + " | " + advancedAlerts : baseAlerts || advancedAlerts;
+        if (last4.length === 4 && last4.filter(c => c === 'BLUE').length >= 2 && last4[last4.length-1] === 'BLUE' && last4[last4.length-2] === 'BLUE')
+            alerts.push("Pattern 2.1: double blue after mix → expect pink");
+        let consBlue = 0;
+        for (let i=colors.length-1; i>=0 && colors[i]==='BLUE'; i--) consBlue++;
+        if (consBlue >= 6 && consBlue <= 8) alerts.push(`Pattern 2.2: ${consBlue} consecutive blues → high pink probability`);
+        let consPurple = 0;
+        for (let i=colors.length-1; i>=0 && colors[i]==='PURPLE'; i--) consPurple++;
+        if (consPurple >= 5) alerts.push(`Pattern 2.3: ${consPurple} purples → pink above 20x likely`);
+        return alerts.length ? alerts.join(" · ") : "No active pattern detected. Continue observing.";
     };
     
-    /**
-     * Update the outcome history UI and pattern alert box.
-     * Also triggers D3 chart update inside menu.
-     * @function ___updateHistoryUI
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___updateHistoryUI = () => {
-        const historyDiv = ___dom.historyLog;
-        if (___state.outcomes.length === 0) {
-            historyDiv.innerHTML = 'No rounds recorded.';
+    const renderHeatmap = () => {
+        const last30 = state.outcomes.slice(-30).map(o => o.color);
+        dom.heatmapContainer.innerHTML = last30.map((color, idx) => `<div class="heatmap-cell" data-color="${color}" title="Round ${idx+1}: ${color}"></div>`).join('');
+        if (last30.length === 0) dom.heatmapContainer.innerHTML = '<span class="small">No data</span>';
+    };
+    
+    const updateHistoryUI = () => {
+        if (state.outcomes.length === 0) dom.historyLog.innerHTML = 'No rounds recorded.';
+        else {
+            dom.historyLog.innerHTML = state.outcomes.map((o,i) => `<span class="history-badge">${i+1}: ${o.color}${o.multiplier ? ` (${o.multiplier}x)` : ''}</span>`).join('');
+        }
+        dom.patternAlert.innerHTML = detectPatterns();
+        renderHeatmap();
+        updateStrategyAdvice();
+    };
+    
+    // ---------- CHART.JS INTEGRATION ----------
+    const renderChart = () => {
+        if (state.currentChart) state.currentChart.destroy();
+        const ctx = dom.mainCanvas.getContext('2d');
+        const labels = state.probHistory.map(p => p.timestamp);
+        const values = state.probHistory.map(p => p.value);
+        let config = { responsive: true, maintainAspectRatio: true };
+        if (state.chartStyle === 'line' || state.chartStyle === 'wave') {
+            config.type = 'line';
+            config.data = { labels, datasets: [{ label: 'Probability %', data: values, borderColor: '#E85D3A', backgroundColor: state.chartStyle === 'wave' ? 'rgba(232,93,58,0.08)' : 'rgba(232,93,58,0.05)', borderWidth: 2, tension: state.chartStyle === 'wave' ? 0.4 : 0.2, fill: true, pointRadius: 3 }] };
+            dom.chartTitle.innerText = `Momentum Oscillator · ${state.chartStyle === 'wave' ? 'Wave' : 'Line'}`;
+        } else if (state.chartStyle === 'bar') {
+            config.type = 'bar';
+            config.data = { labels, datasets: [{ label: 'Probability %', data: values, backgroundColor: '#E85D3A' }] };
+            dom.chartTitle.innerText = 'Momentum Oscillator · Bar';
         } else {
-            historyDiv.innerHTML = ___state.outcomes.map((outcome, index) => 
-                `<span class="history_tag_6b3e8a2d">${index+1}: ${outcome.color}${outcome.multiplier ? ` (${outcome.multiplier}x)` : ''}</span>`
-            ).join('');
+            const ma = values.map((_,i) => i<2 ? null : (values[i-2]+values[i-1]+values[i])/3);
+            config.type = 'bar';
+            config.data = { labels, datasets: [{ label: 'Probability', data: values, type: 'bar', backgroundColor: '#7F8C6E' }, { label: 'MA(3)', data: ma, type: 'line', borderColor: '#E85D3A', borderWidth: 2, fill: false }] };
+            dom.chartTitle.innerText = 'Momentum Oscillator · Combo';
         }
-        ___dom.patternAlert.innerHTML = ___detectPatterns();
-        ___renderMenuD3Chart();
+        config.options = { scales: { y: { min: 0, max: 100, grid: { color: '#2A3A52' } }, x: { grid: { color: '#2A3A52' } } }, onClick: (e, active) => { if(active.length) dom.chartFeedback.innerText = `Selected: ${active[0].raw}%`; setTimeout(()=> dom.chartFeedback.innerText='', 1500); } };
+        state.currentChart = new Chart(ctx, config);
     };
     
-    /**
-     * Render D3 compounding growth chart inside the hamburger menu.
-     * Shows projected balance starting from 1,000 TZS with 1.20x per round over 20 rounds.
-     * This replaces the childish outcome frequency chart the user hated.
-     * @function ___renderMenuD3Chart
-     * @returns {void}
-     * @date 2026-04-12
-     * FIXED: Chart now re-renders every time the menu opens to show fresh data.
-     */
-    const ___renderMenuD3Chart = () => {
-        const container = document.getElementById('d3-compounding-container');
-        if (!container) return;
-        container.innerHTML = '';
-        
-        const startAmount = 1000;
-        const multiplier = 1.20;
-        const rounds = 20;
-        let dataPoints = [];
-        let currentBalance = startAmount;
-        for (let i = 0; i <= rounds; i++) {
-            dataPoints.push({ round: i, balance: currentBalance });
-            currentBalance *= multiplier;
-        }
-        
-        const width = 360;
-        const height = 200;
-        const margin = { top: 16, right: 16, bottom: 28, left: 52 };
-        const innerWidth = width - margin.left - margin.right;
-        const innerHeight = height - margin.top - margin.bottom;
-        
-        const svg = d3.select(container)
-            .append('svg')
-            .attr('width', width)
-            .attr('height', height)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
-        
-        const xScale = d3.scaleLinear().domain([0, rounds]).range([0, innerWidth]);
-        const yScale = d3.scaleLinear().domain([0, d3.max(dataPoints, d => d.balance)]).range([innerHeight, 0]);
-        
-        const lineGenerator = d3.line()
-            .x(d => xScale(d.round))
-            .y(d => yScale(d.balance))
-            .curve(d3.curveMonotoneX);
-        
-        svg.append('path')
-            .datum(dataPoints)
-            .attr('fill', 'none')
-            .attr('stroke', '#ff9900')
-            .attr('stroke-width', 2)
-            .attr('d', lineGenerator);
-        
-        svg.selectAll('.data-dot')
-            .data(dataPoints)
-            .enter()
-            .append('circle')
-            .attr('cx', d => xScale(d.round))
-            .attr('cy', d => yScale(d.balance))
-            .attr('r', 3)
-            .attr('fill', '#0066c0');
-        
-        svg.append('g')
-            .attr('transform', `translate(0,${innerHeight})`)
-            .call(d3.axisBottom(xScale).ticks(5).tickFormat(d3.format('d')));
-        
-        svg.append('g')
-            .call(d3.axisLeft(yScale).tickFormat(d => d.toFixed(0) + ' TZS'));
-        
-        svg.append('text')
-            .attr('x', innerWidth / 2)
-            .attr('y', -6)
-            .attr('text-anchor', 'middle')
-            .style('font-size', '9px')
-            .style('fill', '#555')
-            .text('Compounding growth: 1,000 TZS × 1.20x per round');
-    };
-    
-    /**
-     * Attach or refresh the D3 compounding chart inside the menu panel.
-     * Called every time a feature panel is opened.
-     * @function ___attachMenuCompoundingChart
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___attachMenuCompoundingChart = () => {
-        const menuContent = ___dom.panelContent;
-        if (!document.getElementById('d3-compounding-container')) {
-            const chartDiv = document.createElement('div');
-            chartDiv.id = 'd3-compounding-container';
-            chartDiv.className = 'd3-menu-viz';
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'viz-title';
-            titleDiv.innerText = 'Projected Balance Growth over 20 Rounds';
-            chartDiv.appendChild(titleDiv);
-            menuContent.appendChild(chartDiv);
-        }
-        ___renderMenuD3Chart();
-    };
-    
-    /**
-     * Render Chart.js chart with current probability history.
-     * Supports line, wave, bar, floating bar, and combo styles.
-     * @function ___renderChart
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___renderChart = () => {
-        if (___state.currentChart) ___state.currentChart.destroy();
-        const ctx = ___dom.dynamicCanvas.getContext('2d');
-        const labels = ___state.probHistory.map(entry => entry.timestamp);
-        const values = ___state.probHistory.map(entry => entry.value);
-        
-        let chartConfig = {
-            responsive: true,
-            maintainAspectRatio: true,
-            onClick: (event) => {
-                const points = ___state.currentChart?.getElementsAtEvent(event);
-                if (points && points.length) {
-                    const index = points[0].index;
-                    if (___state.probHistory[index]) {
-                        ___dom.clickFeedback.innerHTML = `Selected: ${___state.probHistory[index].timestamp} → ${___state.probHistory[index].value}%`;
-                        setTimeout(() => { ___dom.clickFeedback.innerHTML = ''; }, 2500);
-                    }
-                }
-            }
-        };
-        
-        if (___state.currentStyle === 'line' || ___state.currentStyle === 'wave') {
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(255,153,0,0.3)');
-            gradient.addColorStop(1, 'rgba(255,153,0,0.02)');
-            chartConfig.type = 'line';
-            chartConfig.data = {
-                labels: labels,
-                datasets: [{
-                    label: 'Probability %',
-                    data: values,
-                    borderColor: '#ff9900',
-                    backgroundColor: ___state.currentStyle === 'wave' ? gradient : 'rgba(255,153,0,0.1)',
-                    borderWidth: 2,
-                    tension: ___state.currentStyle === 'wave' ? 0.4 : 0.2,
-                    fill: true,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#ff9900'
-                }]
-            };
-            ___dom.chartTitle.innerText = `Momentum Oscillator · ${___state.currentStyle === 'wave' ? 'Wave Chart' : 'Line Chart'}`;
-        } else if (___state.currentStyle === 'bar') {
-            chartConfig.type = 'bar';
-            chartConfig.data = {
-                labels: labels,
-                datasets: [{ label: 'Probability %', data: values, backgroundColor: '#ff9900', barPercentage: 0.7 }]
-            };
-            ___dom.chartTitle.innerText = 'Momentum Oscillator · Bar Chart';
-        } else if (___state.currentStyle === 'floatingBar') {
-            chartConfig.type = 'bar';
-            chartConfig.data = {
-                labels: labels,
-                datasets: [{ label: 'Probability %', data: values, backgroundColor: 'rgba(255,153,0,0.6)', borderColor: '#cc7a00', borderWidth: 1, barPercentage: 0.5 }]
-            };
-            ___dom.chartTitle.innerText = 'Momentum Oscillator · Floating Bar';
-        } else if (___state.currentStyle === 'combo') {
-            const movingAverage = values.map((_, i) => i < 2 ? null : (values[i-2] + values[i-1] + values[i]) / 3);
-            chartConfig.type = 'bar';
-            chartConfig.data = {
-                labels: labels,
-                datasets: [
-                    { label: 'Probability bar', data: values, type: 'bar', backgroundColor: '#ff9900', order: 1 },
-                    { label: 'Moving Avg 3', data: movingAverage, type: 'line', borderColor: '#c25a3a', borderWidth: 2, fill: false, tension: 0.2, pointRadius: 3, order: 0 }
-                ]
-            };
-            ___dom.chartTitle.innerText = 'Momentum Oscillator · Combo Bar + MA';
-        }
-        chartConfig.options = { scales: { y: { min: 0, max: 100 } } };
-        ___state.currentChart = new Chart(ctx, chartConfig);
-    };
-    
-    /**
-     * Add a new probability value to history and refresh chart.
-     * Maintains last 40 entries.
-     * @param {number} value - Probability percentage
-     * @function ___pushProbability
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___pushProbability = (value) => {
+    const pushProbability = (value) => {
         const now = new Date();
-        const timeLabel = now.toLocaleTimeString('en-GB', { hour12: false, minute: '2-digit', second: '2-digit' });
-        ___state.probHistory.push({ timestamp: timeLabel, value });
-        if (___state.probHistory.length > 40) ___state.probHistory.shift();
-        ___renderChart();
+        const label = now.toLocaleTimeString('en-GB', { hour12: false, minute:'2-digit', second:'2-digit' });
+        state.probHistory.push({ timestamp: label, value });
+        if (state.probHistory.length > 40) state.probHistory.shift();
+        renderChart();
     };
     
-    /**
-     * Main refresh function called every ~900ms.
-     * Updates probability, gauge, alert, chart, forecast, and live timestamp.
-     * @function ___refreshAll
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___refreshAll = () => {
+    const refreshAll = () => {
         const now = new Date();
         const minuteFloat = now.getMinutes() + now.getSeconds() / 60;
-        const currentHour = now.getHours();
-        const probability = ___computeProbability(minuteFloat, currentHour);
-        ___setGauge(probability);
-        ___updateAlert(probability);
-        ___pushProbability(probability);
-        ___dom.liveMinute.innerHTML = `Now: ${minuteFloat.toFixed(1)} min`;
-        ___dom.liveTimestamp.innerHTML = `Real-time · ${now.toLocaleTimeString('en-GB', { hour12: false })} UTC`;
-        ___updateForecast();
-    };
-    
-    /**
-     * Add a new outcome (Blue, Purple, or Pink) to the history.
-     * For pink, optionally accepts a multiplier value for the predictor.
-     * @param {string} color - 'BLUE', 'PURPLE', or 'PINK'
-     * @param {number|null} multiplier - Multiplier value for pink outcomes
-     * @function ___addOutcome
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___addOutcome = (color, multiplier = null) => {
-        const timestamp = new Date().toISOString();
-        ___state.outcomes.push({ color, multiplier, timestamp });
-        if (color === 'PINK') {
-            ___state.pinkEvents.push({ time: new Date(), multiplier: multiplier || 0 });
+        const probability = computeProbability(minuteFloat, now.getHours());
+        updateGauge(probability);
+        let alertText = `Probability: ${probability}%`;
+        if (probability >= 70) alertText += ` – high confidence, increase stake`;
+        else if (probability < 40) alertText += ` – conservative, reduce exposure`;
+        else alertText += ` – standard range`;
+        dom.alertMessage.innerHTML = alertText;
+        pushProbability(probability);
+        updateStatus(now);
+        dom.liveTimestamp.innerText = `Real-time · ${now.toLocaleTimeString('en-GB', { hour12: false })} UTC`;
+        let forecastHtml = '';
+        for (let i = 1; i <= 15; i++) {
+            let futureMin = minuteFloat + i;
+            let futureHour = now.getHours();
+            if (futureMin >= 60) { futureMin -= 60; futureHour = (futureHour + 1) % 24; }
+            const prob = computeProbability(futureMin, futureHour);
+            const barHeight = Math.max(18, prob * 0.65);
+            forecastHtml += `<div class="forecast-item"><div class="forecast-bar" style="height:${barHeight}px;"></div><div>+${i}</div><div>${prob}%</div></div>`;
         }
-        ___saveOutcomes();
-        ___updateHistoryUI();
-        ___refreshAll();
+        dom.forecastContainer.innerHTML = forecastHtml;
     };
     
-    /**
-     * Reset all outcomes and pink events.
-     * @function ___resetOutcomes
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___resetOutcomes = () => {
-        ___state.outcomes = [];
-        ___state.pinkEvents = [];
-        ___saveOutcomes();
-        ___updateHistoryUI();
-        ___refreshAll();
+    // ---------- OUTCOME MANAGEMENT ----------
+    const addOutcome = (color, multiplier = null) => {
+        state.outcomes.push({ color, multiplier, timestamp: new Date().toISOString() });
+        if (color === 'PINK') state.pinkEvents.push({ time: new Date(), multiplier: multiplier || 0 });
+        saveData();
+        updateHistoryUI();
+        refreshAll();
     };
+    const undoLast = () => { if (state.outcomes.length) { state.outcomes.pop(); saveData(); updateHistoryUI(); refreshAll(); } };
+    const resetOutcomes = () => { state.outcomes = []; state.pinkEvents = []; saveData(); updateHistoryUI(); refreshAll(); };
     
-    /**
-     * Generate professional strategy tips content (Amazon-style, TZS amounts).
-     * @returns {string} HTML content for tips panel
-     * @date 2026-04-12
-     */
-    const ___getProfessionalTips = () => `
-        <div class="tips-highlight"><strong>Professional Strategy Guide</strong> – amounts in Tanzanian Shillings TZS</div>
-        <div>Start with minimum TZS 2,000 per round. Maximum risk 5% of bankroll. Recommended bankroll: TZS 200,000.</div>
-        <div class="mt-2"><strong>Auto Cash Out Strategy</strong><br>Bet A: TZS 15,000 at 1.8x → profit TZS 12,000. Bet B: TZS 5,000 at 5x → profit TZS 25,000.</div>
-        <div class="mt-2"><strong>Pink Window Exploitation</strong><br>During windows 57-59 and 01-03 minutes, increase stake to TZS 3,000. Historical hit rate above 80%.</div>
-        <div class="mt-2"><strong>Pattern Recognition Execution</strong><br>After two consecutive blues, place TZS 4,000 on pink. After five purples, place TZS 10,000 on pink above 20x.</div>
-        <div class="mt-2"><strong>Loss Recovery Limit</strong><br>After three consecutive losses, stop betting for 15 minutes. Resume with TZS 1,000. Daily loss limit TZS 30,000.</div>
-        <div class="mt-2"><strong>Jackpot Preparation</strong><br>When purple cluster appears, allocate TZS 2,000 for a 50x+ jackpot attempt. Use auto cash out at 30x.</div>
-        <div class="mt-2"><strong>Multiplier Tracking</strong><br>If last five pinks average below 15x, next pink has 70% chance to exceed 25x. Increase stake to TZS 8,000.</div>
-        <div class="mt-2"><strong>Time Slot Optimization</strong><br>Most profitable hours: 05:00-09:00 and 23:00-02:00. During these slots, use TZS 20,000 at 2x.</div>
-        <div class="mt-2"><strong>Emotional Control Protocol</strong><br>Set daily win limit of TZS 100,000 and loss limit of TZS 50,000. Only bet when probability exceeds 65%.</div>
-        <div class="mt-2 small">Responsible gambling: 0800 006 008 or WhatsApp 076 675 0710. These tips are educational, not guarantees.</div>
-    `;
-    
-    /**
-     * Generate pink interval predictor based on last recorded pink.
-     * Uses 1,1,2,3 minutes rule for pinks above 15x, and +20min rule for 10x.
-     * @returns {string} HTML content
-     * @date 2026-04-12
-     */
-    const ___getPinkIntervalPredictor = () => {
-        let html = `<div class="tips-highlight"><strong>Pink Interval Predictor</strong></div>`;
-        if (___state.pinkEvents.length === 0) {
-            html += `<div>No pink events recorded. Use Add Pink with Multiplier to store pink outcomes.</div>`;
-        } else {
-            const lastPink = ___state.pinkEvents[___state.pinkEvents.length - 1];
-            const baseTime = new Date(lastPink.time);
-            const minutes = baseTime.getMinutes();
-            const seconds = baseTime.getSeconds();
-            html += `<div>Last pink: ${baseTime.toLocaleTimeString()} at ${lastPink.multiplier}x</div>`;
-            if (lastPink.multiplier >= 15) {
-                html += `<div class="mt-2"><strong>1,1,2,3 minutes intervals:</strong><br>`;
-                let nextMin = minutes + 1; if (nextMin >= 60) nextMin -= 60;
-                html += `+1 min: ~${nextMin}:${seconds}<br>`;
-                nextMin = minutes + 2; if (nextMin >= 60) nextMin -= 60;
-                html += `+2 min: ~${nextMin}:${seconds}<br>`;
-                nextMin = minutes + 4; if (nextMin >= 60) nextMin -= 60;
-                html += `+4 min: ~${nextMin}:${seconds}<br>`;
-                nextMin = minutes + 7; if (nextMin >= 60) nextMin -= 60;
-                html += `+7 min: ~${nextMin}:${seconds}</div>`;
-            }
-            if (lastPink.multiplier >= 9.5 && lastPink.multiplier <= 10.5) {
-                const hugePinkTime = new Date(baseTime.getTime() + 20 * 60000);
-                html += `<div class="mt-2"><strong>10x rule:</strong> Next huge pink around ${hugePinkTime.toLocaleTimeString()}, then apply 1,1,2,3 intervals.</div>`;
-            }
+    // ---------- D3 COMPOUNDING CHART (MENU) ----------
+    const renderD3MenuChart = () => {
+        const container = document.getElementById('d3-menu-viz');
+        if (!container) return;
+        container.innerHTML = '';
+        const start = 1000, mult = 1.20, rounds = 20;
+        let data = [], val = start;
+        for (let i = 0; i <= rounds; i++) { data.push({ round: i, balance: val }); val *= mult; }
+        const w = 340, h = 170, margin = { top: 16, right: 15, bottom: 22, left: 48 };
+        const svg = d3.select(container).append('svg').attr('width', w).attr('height', h).append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+        const x = d3.scaleLinear().domain([0, rounds]).range([0, w - margin.left - margin.right]);
+        const y = d3.scaleLinear().domain([0, d3.max(data, d => d.balance)]).range([h - margin.top - margin.bottom, 0]);
+        svg.append('path').datum(data).attr('fill', 'none').attr('stroke', '#E85D3A').attr('stroke-width', 2).attr('d', d3.line().x(d => x(d.round)).y(d => y(d.balance)).curve(d3.curveMonotoneX));
+        svg.selectAll('.dot').data(data).enter().append('circle').attr('cx', d => x(d.round)).attr('cy', d => y(d.balance)).attr('r', 2.5).attr('fill', '#3B7EA5');
+        svg.append('g').attr('transform', `translate(0,${h - margin.top - margin.bottom})`).call(d3.axisBottom(x).ticks(5));
+        svg.append('g').call(d3.axisLeft(y).tickFormat(d => d.toFixed(0) + ' TZS'));
+        svg.append('text').attr('x', (w - margin.left - margin.right) / 2).attr('y', -4).attr('text-anchor', 'middle').style('font-size', '7px').style('fill', '#8A9BB0').text('Compounding projection: 1,000 TZS · 1.20x/round');
+    };
+    const attachMenuD3 = () => {
+        if (!document.getElementById('d3-menu-viz')) {
+            const div = document.createElement('div');
+            div.id = 'd3-menu-viz';
+            div.style.marginTop = '16px';
+            div.style.padding = '12px';
+            div.style.background = '#0F1725';
+            div.style.border = '1px solid #2A3A52';
+            div.style.borderRadius = '16px';
+            div.innerHTML = '<div style="font-size:0.75rem; font-weight:700; margin-bottom:8px;">📈 Balance projection · 20 rounds</div>';
+            document.getElementById('panelContent').appendChild(div);
         }
-        return html;
+        renderD3MenuChart();
     };
     
-    /**
-     * Show panel for adding pink with custom multiplier.
-     * @function ___showAddPinkWithMultiplier
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___showAddPinkWithMultiplier = () => {
-        const html = `<div><strong>Add Pink with Multiplier</strong></div>
-        <div class="input-group mt-2"><input type="number" id="pink_multiplier_input" class="form-control" placeholder="Multiplier e.g. 15.5" step="0.1"><button id="confirm_pink_btn" class="btn_4f8a2c9e">Add Pink</button></div>
-        <div class="mt-2 small">Multiplier ≥15x triggers 1,1,2,3 intervals; ≈10x triggers +20min rule.</div>`;
-        ___showFeature('Add Pink with Multiplier', html);
-        document.getElementById('confirm_pink_btn')?.addEventListener('click', () => {
-            const multiplier = parseFloat(document.getElementById('pink_multiplier_input')?.value);
-            if (!isNaN(multiplier) && multiplier > 0) {
-                ___addOutcome('PINK', multiplier);
-                ___hidePanel();
-            } else {
-                alert('Please enter a valid multiplier');
-            }
-        });
-    };
-    
-    /**
-     * Generic function to show any feature panel.
-     * @param {string} title - Panel title
-     * @param {string} contentHTML - HTML content
-     * @function ___showFeature
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___showFeature = (title, contentHTML) => {
-        ___dom.panelTitle.innerText = title;
-        ___dom.panelContent.innerHTML = contentHTML;
-        ___dom.featurePanel.classList.add('opn_9a2b4c7d');
-        ___dom.menuOverlay.style.display = 'block';
-        ___attachMenuCompoundingChart();
-    };
-    
-    const ___hidePanel = () => {
-        ___dom.featurePanel.classList.remove('opn_9a2b4c7d');
-        ___dom.menuOverlay.style.display = 'none';
-    };
-    
-    /**
-     * Main hamburger menu with all available features.
-     * @function ___showMainMenu
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___showMainMenu = () => {
-        const menuHtml = `
-            <button class="menu-item" id="feat_pattern">Pattern Detector</button>
-            <button class="menu-item" id="feat_comp">Compounding Table TZS</button>
-            <button class="menu-item" id="feat_cash">Cash-out Advisor</button>
-            <button class="menu-item" id="feat_pink_interval">Pink Interval Predictor</button>
-            <button class="menu-item" id="feat_add_pink_mult">Add Pink with Multiplier</button>
-            <button class="menu-item" id="feat_tips">Professional Strategy Tips TZS</button>
-            <button class="menu-item" id="feat_disc">Disclaimer</button>
+    // ---------- MENU SYSTEM (well-designed components) ----------
+    const showPanel = (title, html) => { dom.panelTitle.innerText = title; dom.panelContent.innerHTML = html; dom.menuPanel.classList.add('open'); dom.menuOverlay.style.display = 'block'; attachMenuD3(); };
+    const hidePanel = () => { dom.menuPanel.classList.remove('open'); dom.menuOverlay.style.display = 'none'; };
+    const buildMainMenu = () => {
+        const html = `
+            <button class="menu-item" id="menuPattern">🧠 Pattern Intelligence</button>
+            <button class="menu-item" id="menuCompounding">📊 Compounding Table TZS</button>
+            <button class="menu-item" id="menuCashout">⚡ Double Bet & Hedge</button>
+            <button class="menu-item" id="menuTips">🎯 Full Strategy Guide</button>
+            <button class="menu-item" id="menuDisclaimer">⚖️ Legal & Disclaimer</button>
         `;
-        ___showFeature('Pink Hunter Menu', menuHtml);
-        
-        document.getElementById('feat_pattern')?.addEventListener('click', () => {
-            ___hidePanel();
-            ___showFeature('Pattern Detector', `<div class="tips-highlight">${___detectPatterns()}</div>`);
-        });
-        document.getElementById('feat_comp')?.addEventListener('click', () => {
-            let rows = '';
-            let baseAmount = 1000;
-            for (let i = 0; i < 20; i++) {
-                rows += `<tr><td class="text-center">${i+1}</td><td class="text-center">1.20x</td><td class="text-end">${baseAmount.toFixed(0)} TZS</td><td class="text-end">${(baseAmount * 1.2).toFixed(0)} TZS</td></tr>`;
-                baseAmount *= 1.2;
-            }
-            const tableHtml = `<div class="table-responsive"><table class="table table-striped table_glass"><thead><tr><th>Round</th><th>Multiplier</th><th>Placed TZS</th><th>Cashed TZS</th></tr></thead><tbody>${rows}</tbody></table></div><div class="mt-2 small">Starting 1,000 TZS, each round 1.20x multiplier</div>`;
-            ___hidePanel();
-            ___showFeature('Compounding Table TZS', tableHtml);
-        });
-        document.getElementById('feat_cash')?.addEventListener('click', () => {
-            ___hidePanel();
-            ___showFeature('Cash-out Advisor', `<div class="tips-highlight">Recommended cash-out target: 20x. Last ${___state.outcomes.filter(o => o.color === 'PINK').length} pinks recorded.<br>For TZS 2,000 stake, 20x yields 40,000 TZS profit.</div>`);
-        });
-        document.getElementById('feat_pink_interval')?.addEventListener('click', () => {
-            ___hidePanel();
-            ___showFeature('Pink Interval Predictor', ___getPinkIntervalPredictor());
-        });
-        document.getElementById('feat_add_pink_mult')?.addEventListener('click', () => {
-            ___hidePanel();
-            ___showAddPinkWithMultiplier();
-        });
-        document.getElementById('feat_tips')?.addEventListener('click', () => {
-            ___hidePanel();
-            ___showFeature('Professional Strategy Tips TZS', ___getProfessionalTips());
-        });
-        document.getElementById('feat_disc')?.addEventListener('click', () => {
-            ___hidePanel();
-            ___showFeature('Disclaimer', `<div class="tips-highlight">Algorithm may change without notice. Informational purposes only. Created by ramsny. Always gamble responsibly.</div>`);
+        showPanel('Pink Hunter · Strategy Core', html);
+        document.getElementById('menuPattern')?.addEventListener('click', () => { hidePanel(); showPanel('Pattern Intelligence', `<div class="pattern-alert">${detectPatterns()}</div>`); });
+        document.getElementById('menuCompounding')?.addEventListener('click', () => { let rows='',b=1000; for(let i=0;i<20;i++){ rows+=`<tr><td class="text-center">${i+1}</td><td class="text-center">1.20x</td><td class="text-end">${b.toFixed(0)} TZS</td><td class="text-end">${(b*1.2).toFixed(0)} TZS</td>`; b*=1.2; } hidePanel(); showPanel('Compounding Table', `<table class="menu-table"><thead><tr><th>Round</th><th>Multiplier</th><th>Placed TZS</th><th>Cashed TZS</th></tr></thead><tbody>${rows}</tbody></table><div class="small mt-2" style="margin-top:12px;">Start 1,000 TZS, 1.20x each round</div>`); });
+        document.getElementById('menuCashout')?.addEventListener('click', () => { hidePanel(); showPanel('Double Bet Strategy', `<div class="tip-card"><div class="tip-title">How to Hedge</div><div class="tip-desc">Auto cash-out first bet at 1.5x to cover total stake. Second bet manually cash out at 5x-10x. Example: 20 TZS on Bet A (1.5x → 30 TZS), 10 TZS on Bet B (5x → 50 TZS). Net profit: 20 TZS.</div></div><div class="tip-card"><div class="tip-title">When to use</div><div class="tip-desc">Ideal for deep blue streaks (6+ blues) and pink windows. Reduces emotional cash-out mistakes.</div></div>`); });
+        document.getElementById('menuTips')?.addEventListener('click', () => { hidePanel(); showPanel('Full Strategy Guide', `<div class="tips-grid"><div class="tip-card"><div class="tip-title">Rule of Three Blues</div><div class="tip-desc">After 3 consecutive blues, 75% chance of purple reset. Enter with 2x target.</div></div><div class="tip-card"><div class="tip-title">Deep Blue Pink Hunt</div><div class="tip-desc">6-9 blues in a row → pink due. Use double bet: cover at 2x, chase 10x.</div></div><div class="tip-card"><div class="tip-title">Instaloss Drain</div><div class="tip-desc">Multiple 1.00x-1.05x crashes → stop betting for 5-10 minutes.</div></div><div class="tip-card"><div class="tip-title">Purple Sandwich</div><div class="tip-desc">Pattern Purple-Blue-Purple → next round likely purple. Target 2.5x-3x.</div></div><div class="tip-card"><div class="tip-title">Hourly Pink Windows</div><div class="tip-desc">Community slots: :02-:05, :18-:22, :35-:38, :52-:57 + original windows.</div></div><div class="tip-card"><div class="tip-title">10x Stack in 60 Mins</div><div class="tip-desc">3-step ladder: double at 2x, then 3x on purple streaks, final pink hunt with double bet.</div></div></div>`); });
+        document.getElementById('menuDisclaimer')?.addEventListener('click', () => { hidePanel(); showPanel('Disclaimer', `<div class="pattern-alert">Informational use only. Past patterns do not guarantee future results. Created by RMS Group. Gamble responsibly.</div>`); });
+    };
+    
+    // ---------- DRAGGABLE MENU & KEYBOARD ----------
+    const initDraggable = () => {
+        let isDragging = false, startX, startY, startLeft, startTop;
+        const btn = dom.menuBtn;
+        const onStart = (e) => { e.preventDefault(); const point = e.touches ? e.touches[0] : e; startX = point.clientX; startY = point.clientY; const rect = btn.getBoundingClientRect(); startLeft = rect.left; startTop = rect.top; isDragging = true; };
+        const onMove = (e) => { if (!isDragging) return; const point = e.touches ? e.touches[0] : e; let newLeft = startLeft + (point.clientX - startX); let newTop = startTop + (point.clientY - startY); newLeft = Math.min(window.innerWidth - 70, Math.max(0, newLeft)); newTop = Math.min(window.innerHeight - 70, Math.max(0, newTop)); btn.style.left = newLeft + 'px'; btn.style.top = newTop + 'px'; btn.style.right = 'auto'; btn.style.bottom = 'auto'; };
+        const onEnd = () => { if (!isDragging) return; isDragging = false; const finalLeft = parseInt(btn.style.left || '0'); const finalTop = parseInt(btn.style.top || '0'); if (Math.abs(startLeft - finalLeft) < 5 && Math.abs(startTop - finalTop) < 5) buildMainMenu(); };
+        btn.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
+        btn.addEventListener('touchstart', onStart); window.addEventListener('touchmove', onMove); window.addEventListener('touchend', onEnd);
+    };
+    
+    const initKeyboard = () => {
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const key = e.key;
+            if (key === 'b' || key === 'B') { addOutcome('BLUE'); e.preventDefault(); }
+            else if (key === 'p' || key === 'P') { addOutcome('PURPLE'); e.preventDefault(); }
+            else if (key === 'k' || key === 'K') { addOutcome('PINK', null); e.preventDefault(); }
+            else if (key === 'r' || key === 'R') { resetOutcomes(); e.preventDefault(); }
+            else if ((e.ctrlKey || e.metaKey) && key === 'z') { undoLast(); e.preventDefault(); }
         });
     };
     
-    /**
-     * Make the floating button draggable.
-     * Uses touch and mouse events for cross-device compatibility.
-     * @function ___initDraggable
-     * @returns {void}
-     * @date 2026-04-12
-     */
-    const ___initDraggable = () => {
-        let isDragging = false;
-        let dragStartX = 0, dragStartY = 0;
-        let dragMoved = false;
-        let startLeft = 0, startTop = 0;
-        const button = ___dom.floatingBtn;
+    // ---------- BOOTSTRAP ----------
+    window.addEventListener('DOMContentLoaded', () => {
+        dom.loader = document.getElementById('loaderOverlay');
+        dom.mainApp = document.getElementById('mainApp');
+        dom.menuBtn = document.getElementById('menuBtn');
+        dom.menuOverlay = document.getElementById('menuOverlay');
+        dom.menuPanel = document.getElementById('menuPanel');
+        dom.panelTitle = document.getElementById('panelTitle');
+        dom.panelContent = document.getElementById('panelContent');
+        dom.closePanelBtn = document.getElementById('closePanelBtn');
+        dom.gaugeCircleFill = document.getElementById('gaugeCircleFill');
+        dom.gaugePercent = document.getElementById('gaugePercent');
+        dom.alertMessage = document.getElementById('alertMessage');
+        dom.windowStatus = document.getElementById('windowStatus');
+        dom.slotStatus = document.getElementById('slotStatus');
+        dom.marketStatus = document.getElementById('marketStatus');
+        dom.windowsContainer = document.getElementById('windowsContainer');
+        dom.liveMinute = document.getElementById('liveMinute');
+        dom.historyLog = document.getElementById('historyLog');
+        dom.patternAlert = document.getElementById('patternAlert');
+        dom.forecastContainer = document.getElementById('forecastContainer');
+        dom.mainCanvas = document.getElementById('mainChart');
+        dom.chartTitle = document.getElementById('chartTitle');
+        dom.liveTimestamp = document.getElementById('liveTimestamp');
+        dom.addBlue = document.getElementById('addBlueBtn');
+        dom.addPurple = document.getElementById('addPurpleBtn');
+        dom.addPink = document.getElementById('addPinkBtn');
+        dom.resetBtn = document.getElementById('resetOutcomesBtn');
+        dom.heatmapContainer = document.getElementById('heatmapContainer');
+        dom.chartFeedback = document.getElementById('chartFeedback');
+        dom.strategyAdvice = document.getElementById('strategyAdvice');
         
-        const onDragStart = (event) => {
-            event.preventDefault();
-            const clientPoint = event.touches ? event.touches[0] : event;
-            dragStartX = clientPoint.clientX;
-            dragStartY = clientPoint.clientY;
-            const rect = button.getBoundingClientRect();
-            startLeft = rect.left;
-            startTop = rect.top;
-            dragMoved = false;
-            isDragging = true;
-            button.style.cursor = 'grabbing';
-        };
+        PINK_WINDOWS.forEach(([s,e]) => { let tag = document.createElement('span'); tag.className = 'window-tag'; tag.innerText = `${s}-${e} min`; dom.windowsContainer.appendChild(tag); });
+        loadData(); updateHistoryUI();
+        dom.addBlue.onclick = () => addOutcome('BLUE');
+        dom.addPurple.onclick = () => addOutcome('PURPLE');
+        dom.addPink.onclick = () => addOutcome('PINK', null);
+        dom.resetBtn.onclick = resetOutcomes;
+        dom.closePanelBtn.onclick = hidePanel;
+        dom.menuOverlay.onclick = hidePanel;
         
-        const onDragMove = (event) => {
-            if (!isDragging) return;
-            const clientPoint = event.touches ? event.touches[0] : event;
-            const deltaX = clientPoint.clientX - dragStartX;
-            const deltaY = clientPoint.clientY - dragStartY;
-            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) dragMoved = true;
-            let newLeft = startLeft + deltaX;
-            let newTop = startTop + deltaY;
-            newLeft = Math.min(window.innerWidth - 60, Math.max(0, newLeft));
-            newTop = Math.min(window.innerHeight - 60, Math.max(0, newTop));
-            button.style.left = newLeft + 'px';
-            button.style.top = newTop + 'px';
-            button.style.right = 'auto';
-            button.style.bottom = 'auto';
-        };
-        
-        const onDragEnd = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            button.style.cursor = 'grab';
-            if (!dragMoved) ___showMainMenu();
-        };
-        
-        button.addEventListener('mousedown', onDragStart);
-        window.addEventListener('mousemove', onDragMove);
-        window.addEventListener('mouseup', onDragEnd);
-        button.addEventListener('touchstart', onDragStart);
-        window.addEventListener('touchmove', onDragMove);
-        window.addEventListener('touchend', onDragEnd);
-    };
-    
-    /**
-     * Bootstrap the entire application.
-     * Loads saved data, sets up event listeners, and shows the 2-second loader.
-     * @function ___bootstrap
-     * @returns {void}
-     * @date 2026-04-12
-     * FIXED: Loader now properly hides after 2 seconds without any user interaction.
-     * TODO: Add error boundary for Chart.js initialization failures.
-     */
-    const ___bootstrap = () => {
-        ___dom.loaderOverlay = document.getElementById('loaderOverlay');
-        ___dom.mainContent = document.getElementById('main_cntnt_4c8e2a7f');
-        ___dom.gaugeFill = document.getElementById('gauge_fill_2e7a4c9d');
-        ___dom.gaugeText = document.getElementById('gauge_txt_8a3f2c6e');
-        ___dom.alertBadge = document.getElementById('alert_bdg_4c7a2f9e');
-        ___dom.winList = document.getElementById('win_list_7a2c4e9f');
-        ___dom.liveMinute = document.getElementById('live_min_6b2e4f8a');
-        ___dom.historyLog = document.getElementById('hist_log_5d2a7c4e');
-        ___dom.patternAlert = document.getElementById('pat_alert_8e2c4a7d');
-        ___dom.fcstBars = document.getElementById('fcst_bars_4a7e2c9d');
-        ___dom.addBlue = document.getElementById('add_blue_2c7a4d9f');
-        ___dom.addPurple = document.getElementById('add_purple_8f3a2c7e');
-        ___dom.addPink = document.getElementById('add_pink_4d9c2a7e');
-        ___dom.resetOuts = document.getElementById('reset_outs_1a7c4e9d');
-        ___dom.floatingBtn = document.getElementById('flt_btn_2d8a7f3e');
-        ___dom.menuOverlay = document.getElementById('ovrly_4c9e2b7a');
-        ___dom.featurePanel = document.getElementById('pnl_5f1d3c8e');
-        ___dom.panelTitle = document.getElementById('pnl_ttl_3a9f2c7e');
-        ___dom.panelContent = document.getElementById('pnl_cntnt_3d7b2e9f');
-        ___dom.closePanel = document.getElementById('cls_pnl_4b8e2c7a');
-        ___dom.dynamicCanvas = document.getElementById('dyn_canvas_3c7a2e8f');
-        ___dom.clickFeedback = document.getElementById('click_fb_9f2c4a7e');
-        ___dom.chartTitle = document.getElementById('chart_ttl_2a7c4e9d');
-        ___dom.liveTimestamp = document.getElementById('live_ts_6d2a4f8e');
-        ___dom.currentYearSpan = document.getElementById('curr_year_2a4c7e9f');
-        
-        ___loadOutcomes();
-        
-        const gaugeCircumference = 2 * Math.PI * 85;
-        ___dom.gaugeFill.style.strokeDasharray = gaugeCircumference;
-        ___dom.gaugeFill.style.strokeDashoffset = gaugeCircumference;
-        
-        ___dom.addBlue.addEventListener('click', () => ___addOutcome('BLUE'));
-        ___dom.addPurple.addEventListener('click', () => ___addOutcome('PURPLE'));
-        ___dom.addPink.addEventListener('click', () => ___addOutcome('PINK', null));
-        ___dom.resetOuts.addEventListener('click', ___resetOutcomes);
-        ___dom.closePanel.addEventListener('click', ___hidePanel);
-        ___dom.menuOverlay.addEventListener('click', ___hidePanel);
-        
-        document.querySelectorAll('.switch_opt_9f4d2a7c').forEach(option => {
-            option.addEventListener('click', () => {
-                document.querySelectorAll('.switch_opt_9f4d2a7c').forEach(opt => opt.classList.remove('actv_1e3b5c7d'));
-                option.classList.add('actv_1e3b5c7d');
-                ___state.currentStyle = option.dataset.style;
-                ___renderChart();
-            });
-        });
-        
-        ___populateWindowsList();
-        ___updateHistoryUI();
-        
+        document.querySelectorAll('.chart-opt').forEach(opt => opt.addEventListener('click', () => {
+            document.querySelectorAll('.chart-opt').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active'); state.chartStyle = opt.dataset.style; renderChart();
+        }));
+        const circumference = 2 * Math.PI * 85;
+        dom.gaugeCircleFill.style.strokeDasharray = circumference;
+        dom.gaugeCircleFill.style.strokeDashoffset = circumference;
+        refreshAll(); state.refreshInterval = setInterval(refreshAll, 900);
+        initKeyboard();
         setTimeout(() => {
-            ___dom.loaderOverlay.style.opacity = '0';
+            dom.loader.style.opacity = '0';
             setTimeout(() => {
-                ___dom.loaderOverlay.style.display = 'none';
-                ___dom.mainContent.style.display = 'block';
-                ___refreshAll();
-                ___state.updateInterval = setInterval(___refreshAll, 900);
-                ___dom.currentYearSpan.innerText = new Date().getFullYear();
-                ___initDraggable();
+                dom.loader.style.display = 'none';
+                dom.mainApp.style.display = 'block';
+                initDraggable();
             }, 200);
         }, 2000);
-    };
-    
-    ___bootstrap();
+    });
 })();
 </script>
 </body>
-</html>
+        </html>
